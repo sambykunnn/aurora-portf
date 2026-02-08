@@ -4,6 +4,7 @@ export type BlockType =
   | 'image-full'
   | 'image-grid-2'
   | 'image-grid-3'
+  | 'image-grid-6'
   | 'image-text'
   | 'spacer'
   | 'quote'

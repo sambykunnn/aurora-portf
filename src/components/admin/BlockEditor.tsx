@@ -18,6 +18,7 @@ const BLOCK_TYPES: { type: BlockType; label: string; icon: typeof Type; descript
   { type: "image-full", label: "Full Image", icon: Image, description: "Full-width single image" },
   { type: "image-grid-2", label: "2-Column Grid", icon: Columns2, description: "Two images side by side" },
   { type: "image-grid-3", label: "3-Column Grid", icon: Columns3, description: "Three images in a row" },
+  { type: "image-grid-6", label: "6-Column Grid", icon: GalleryHorizontal, description: "Six images in a 3×2 grid" },
   { type: "image-text", label: "Image + Text", icon: LayoutTemplate, description: "Image and text side by side" },
   { type: "quote", label: "Quote", icon: Quote, description: "Pull quote with author" },
   { type: "spacer", label: "Spacer", icon: Minus, description: "Visual spacer / divider" },
@@ -37,6 +38,8 @@ function createDefaultBlock(type: BlockType): ContentBlock {
       return { ...base, images: [{ url: "", caption: "" }, { url: "", caption: "" }] };
     case "image-grid-3":
       return { ...base, images: [{ url: "", caption: "" }, { url: "", caption: "" }, { url: "", caption: "" }] };
+    case "image-grid-6":
+      return { ...base, images: [{ url: "", caption: "" }, { url: "", caption: "" }, { url: "", caption: "" }, { url: "", caption: "" }, { url: "", caption: "" }, { url: "", caption: "" }] };
     case "image-text":
       return { ...base, image: "", heading: "", body: "", textSide: "right" };
     case "quote":
@@ -346,6 +349,7 @@ function BlockEditorItem({ block, index, total, expanded, onToggle, onChange, on
       case "image-full": return <ImageFullEditor block={block} onChange={onChange} />;
       case "image-grid-2": return <ImageGridEditor block={block} onChange={onChange} count={2} />;
       case "image-grid-3": return <ImageGridEditor block={block} onChange={onChange} count={3} />;
+      case "image-grid-6": return <ImageGridEditor block={block} onChange={onChange} count={6} />;
       case "image-text": return <ImageTextEditor block={block} onChange={onChange} />;
       case "quote": return <QuoteEditor block={block} onChange={onChange} />;
       case "spacer": return <SpacerEditor block={block} onChange={onChange} />;
