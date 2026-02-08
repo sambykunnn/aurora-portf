@@ -4,8 +4,9 @@ import {
   X, LogOut, Settings, Users, Image, Lock, Eye, EyeOff,
   Save, RotateCcw, Plus, Trash2, ChevronDown, ChevronRight,
   Check, AlertCircle, GripVertical, ExternalLink, Palette,
+  Rocket, Github, RefreshCw, Shield, Clock, Download, Upload,
 } from "lucide-react";
-import { useData, type SiteContent } from "@/context/DataContext";
+import { useData, type SiteContent, type GitHubConfig } from "@/context/DataContext";
 import type { TeamMember, WorkItem } from "@/data/teamData";
 import { BlockEditor } from "./BlockEditor";
 
@@ -22,7 +23,7 @@ function generateId() {
 /* ─── Toast ─── */
 function Toast({ message, type, onDone }: { message: string; type: "success" | "error"; onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 3000);
+    const t = setTimeout(onDone, 4000);
     return () => clearTimeout(t);
   }, [onDone]);
 
@@ -31,7 +32,7 @@ function Toast({ message, type, onDone }: { message: string; type: "success" | "
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      className="fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl"
+      className="fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl max-w-sm"
       style={{
         background: type === "success" ? "#10B981" : "#EF4444",
         color: "#fff",
@@ -765,8 +766,273 @@ function TeamMembersEditor({ onToast }: { onToast: (msg: string, type: "success"
   );
 }
 
+/* ─── Deploy / GitHub Settings ─── */
+function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
+  const { githubConfig, setGitHubConfig, saveToGitHub, isDeploying, lastDeployTime, siteContent, teamMembers, updateSiteContent, updateTeamMembers } = useData();
+  const [draft, setDraft] = useState<GitHubConfig>(githubConfig);
+  const [showToken, setShowToken] = useState(false);
+  const [configChanged, setConfigChanged] = useState(false);
+
+  useEffect(() => {
+    setDraft(githubConfig);
+    setConfigChanged(false);
+  }, [githubConfig]);
+
+  const updateDraft = (key: keyof GitHubConfig, value: string) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
+    setConfigChanged(true);
+  };
+
+  const saveConfig = () => {
+    setGitHubConfig(draft);
+    setConfigChanged(false);
+    onToast("GitHub config saved!", "success");
+  };
+
+  const handleDeploy = async () => {
+    // Save config first if changed
+    if (configChanged) {
+      setGitHubConfig(draft);
+      setConfigChanged(false);
+    }
+
+    const result = await saveToGitHub();
+    onToast(result.message, result.success ? "success" : "error");
+  };
+
+  const handleExport = () => {
+    const data = JSON.stringify({ siteContent, teamMembers }, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `aurora-data-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    onToast("Data exported!", "success");
+  };
+
+  const handleImport = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (data.siteContent) {
+          updateSiteContent(data.siteContent);
+        }
+        if (data.teamMembers) {
+          updateTeamMembers(data.teamMembers);
+        }
+        onToast("Data imported successfully!", "success");
+      } catch {
+        onToast("Failed to parse JSON file", "error");
+      }
+    };
+    input.click();
+  };
+
+  const isConfigured = draft.owner && draft.repo && draft.token;
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Deploy & Persist</h2>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
+          Push your changes to GitHub to persist them across deployments
+        </p>
+      </div>
+
+      {/* Status Card */}
+      <div className="glass-card rounded-2xl p-6">
+        <div className="flex items-center gap-4 mb-5">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            style={{ background: isConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+          >
+            {isConfigured ? <Check size={22} className="text-white" /> : <Github size={22} className="text-white" />}
+          </div>
+          <div>
+            <h3 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+              {isConfigured ? "GitHub Connected" : "Connect GitHub Repository"}
+            </h3>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              {isConfigured
+                ? `${draft.owner}/${draft.repo} (${draft.branch})`
+                : "Configure your GitHub repo to enable persistent saves"
+              }
+            </p>
+          </div>
+        </div>
+
+        {lastDeployTime && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-4" style={{ background: "var(--bg-secondary)" }}>
+            <Clock size={14} style={{ color: "var(--text-tertiary)" }} />
+            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
+              Last deployed: <strong>{lastDeployTime}</strong>
+            </span>
+          </div>
+        )}
+
+        {/* Deploy button */}
+        <button
+          onClick={handleDeploy}
+          disabled={isDeploying || !isConfigured}
+          className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
+          style={{
+            background: isConfigured
+              ? "linear-gradient(135deg, #10B981, #059669)"
+              : "linear-gradient(135deg, #9ca3af, #6b7280)",
+          }}
+        >
+          {isDeploying ? (
+            <>
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                <RefreshCw size={16} />
+              </motion.div>
+              Deploying to GitHub...
+            </>
+          ) : (
+            <>
+              <Rocket size={16} />
+              Save &amp; Deploy to GitHub
+            </>
+          )}
+        </button>
+
+        {!isConfigured && (
+          <p className="text-xs text-center mt-2" style={{ color: "var(--text-tertiary)" }}>
+            Configure your GitHub settings below first
+          </p>
+        )}
+      </div>
+
+      {/* How it works */}
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+          <Shield size={14} /> How It Works
+        </h3>
+        <div className="space-y-3">
+          {[
+            { step: "1", text: "Changes are saved to browser localStorage immediately when you click Save" },
+            { step: "2", text: "Click 'Save & Deploy' to commit a data.json file to your GitHub repo" },
+            { step: "3", text: "Vercel detects the commit and auto-redeploys your site with the new data" },
+            { step: "4", text: "Your changes are now live and persistent across all browsers" },
+          ].map((item) => (
+            <div key={item.step} className="flex items-start gap-3">
+              <span
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                style={{ background: "var(--bg-tertiary)", color: "var(--text-secondary)" }}
+              >
+                {item.step}
+              </span>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* GitHub Configuration */}
+      <div className="glass-card rounded-2xl p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+            <Github size={14} /> GitHub Configuration
+          </h3>
+          {configChanged && (
+            <button onClick={saveConfig} className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors flex items-center gap-1.5">
+              <Save size={12} /> Save Config
+            </button>
+          )}
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-5">
+          <FormGroup label="Repository Owner" hint="Your GitHub username or organization">
+            <Input value={draft.owner} onChange={(v) => updateDraft("owner", v)} placeholder="e.g., aurora-studio" />
+          </FormGroup>
+          <FormGroup label="Repository Name" hint="The name of the repo">
+            <Input value={draft.repo} onChange={(v) => updateDraft("repo", v)} placeholder="e.g., aurora-website" />
+          </FormGroup>
+        </div>
+
+        <FormGroup label="Branch" hint="Branch to commit to (default: main)">
+          <Input value={draft.branch} onChange={(v) => updateDraft("branch", v)} placeholder="main" />
+        </FormGroup>
+
+        <FormGroup label="File Path" hint="Path in the repo where data.json will be saved">
+          <Input value={draft.filePath} onChange={(v) => updateDraft("filePath", v)} placeholder="public/data.json" />
+        </FormGroup>
+
+        <FormGroup label="Personal Access Token" hint="Generate at github.com/settings/tokens → Fine-grained → Contents: Read & Write">
+          <div className="relative">
+            <input
+              type={showToken ? "text" : "password"}
+              value={draft.token}
+              onChange={(e) => updateDraft("token", e.target.value)}
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+              className="w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm font-mono transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+              style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowToken(!showToken)}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </FormGroup>
+
+        <div className="rounded-xl p-4 border border-amber-500/20" style={{ background: "rgba(245, 158, 11, 0.05)" }}>
+          <p className="text-xs font-medium text-amber-600 flex items-start gap-2">
+            <Shield size={14} className="flex-shrink-0 mt-0.5" />
+            <span>
+              Your token is stored only in your browser&apos;s localStorage. It is never sent to our servers — only directly to GitHub&apos;s API.
+              Use a fine-grained token with minimal permissions (Contents: Read &amp; Write on this repo only).
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* Manual Export/Import */}
+      <div className="glass-card rounded-2xl p-6 space-y-5">
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+          Manual Backup
+        </h3>
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Export your data as a JSON file for backup, or import a previously exported file.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={handleExport}
+            className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--bg-tertiary)]"
+            style={{ borderColor: "var(--divider)", color: "var(--text-primary)" }}
+          >
+            <Download size={16} />
+            Export Data
+          </button>
+          <button
+            onClick={handleImport}
+            className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--bg-tertiary)]"
+            style={{ borderColor: "var(--divider)", color: "var(--text-primary)" }}
+          >
+            <Upload size={16} />
+            Import Data
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Admin Panel ─── */
-type Tab = "site" | "team";
+type Tab = "site" | "team" | "deploy";
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -799,6 +1065,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
     { id: "site", label: "Site Settings", icon: <Settings size={16} /> },
     { id: "team", label: "Team Members", icon: <Users size={16} /> },
+    { id: "deploy", label: "Deploy", icon: <Rocket size={16} /> },
   ];
 
   return (
@@ -888,6 +1155,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     >
                       {activeTab === "site" && <SiteSettingsEditor onToast={showToast} />}
                       {activeTab === "team" && <TeamMembersEditor onToast={showToast} />}
+                      {activeTab === "deploy" && <DeployEditor onToast={showToast} />}
                     </motion.div>
                   </AnimatePresence>
                 </div>
