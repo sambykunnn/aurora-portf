@@ -1,0 +1,546 @@
+import { useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Wrench } from "lucide-react";
+import type { TeamMember, WorkItem, ContentBlock } from "@/data/teamData";
+
+interface ProjectViewProps {
+  work: WorkItem;
+  member: TeamMember;
+  onBack: () => void;
+}
+
+/* ─── Block Renderers ─── */
+
+function HeroImageBlock({ block }: { block: ContentBlock }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="relative w-full aspect-[21/9] min-h-[280px] md:min-h-[400px] overflow-hidden rounded-2xl md:rounded-3xl"
+    >
+      {block.image && (
+        <img
+          src={block.image}
+          alt={block.heading || ""}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      {(block.heading || block.body) && (
+        <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 lg:p-14">
+          {block.heading && (
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">
+              {block.heading}
+            </h2>
+          )}
+          {block.body && (
+            <p className="text-base md:text-lg text-white/70 mt-2 font-light tracking-wide">
+              {block.body}
+            </p>
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function TextBlock({ block, index }: { block: ContentBlock; index: number }) {
+  const alignClass =
+    block.alignment === "center"
+      ? "text-center mx-auto"
+      : block.alignment === "right"
+        ? "text-right ml-auto"
+        : "";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: index * 0.05 }}
+      className={`max-w-3xl ${alignClass} py-4 md:py-8`}
+    >
+      {block.heading && (
+        <h3
+          className="text-xl md:text-2xl lg:text-3xl font-bold mb-3 md:mb-4 tracking-tight"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {block.heading}
+        </h3>
+      )}
+      {block.body && (
+        <p
+          className="text-sm md:text-base lg:text-lg leading-relaxed whitespace-pre-line"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {block.body}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+function ImageFullBlock({ block, index }: { block: ContentBlock; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="w-full py-2"
+    >
+      {block.image && (
+        <div className="rounded-2xl overflow-hidden">
+          <img
+            src={block.image}
+            alt={block.caption || ""}
+            className="w-full h-auto object-cover"
+            loading="lazy"
+          />
+        </div>
+      )}
+      {block.caption && (
+        <p
+          className="text-xs md:text-sm mt-3 text-center font-medium"
+          style={{ color: "var(--text-tertiary)" }}
+        >
+          {block.caption}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+function ImageGrid2Block({ block, index }: { block: ContentBlock; index: number }) {
+  const images = block.images || [];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 py-2"
+    >
+      {images.map((img, i) => (
+        <div key={i} className="space-y-2">
+          <div className="rounded-2xl overflow-hidden aspect-[4/3]">
+            <img
+              src={img.url}
+              alt={img.caption || ""}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+              loading="lazy"
+            />
+          </div>
+          {img.caption && (
+            <p
+              className="text-xs font-medium text-center"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {img.caption}
+            </p>
+          )}
+        </div>
+      ))}
+    </motion.div>
+  );
+}
+
+function ImageGrid3Block({ block, index }: { block: ContentBlock; index: number }) {
+  const images = block.images || [];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-5 py-2"
+    >
+      {images.map((img, i) => (
+        <div key={i} className="space-y-2">
+          <div className="rounded-2xl overflow-hidden aspect-square">
+            <img
+              src={img.url}
+              alt={img.caption || ""}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+              loading="lazy"
+            />
+          </div>
+          {img.caption && (
+            <p
+              className="text-xs font-medium text-center"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {img.caption}
+            </p>
+          )}
+        </div>
+      ))}
+    </motion.div>
+  );
+}
+
+function ImageTextBlock({
+  block,
+  index,
+  accentColor,
+}: {
+  block: ContentBlock;
+  index: number;
+  accentColor: string;
+}) {
+  const isRight = block.textSide === "right";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 py-4 items-center ${isRight ? "" : "md:[direction:rtl]"}`}
+    >
+      <div className={`rounded-2xl overflow-hidden aspect-[4/3] ${isRight ? "" : "md:[direction:ltr]"}`}>
+        {block.image && (
+          <img
+            src={block.image}
+            alt={block.heading || ""}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        )}
+      </div>
+      <div className={`space-y-3 ${isRight ? "" : "md:[direction:ltr]"}`}>
+        {block.heading && (
+          <h3
+            className="text-xl md:text-2xl font-bold tracking-tight"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {block.heading}
+          </h3>
+        )}
+        {block.body && (
+          <p
+            className="text-sm md:text-base leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {block.body}
+          </p>
+        )}
+        <div className="w-12 h-0.5 rounded-full" style={{ background: accentColor }} />
+      </div>
+    </motion.div>
+  );
+}
+
+function QuoteBlock({
+  block,
+  index,
+  accentColor,
+}: {
+  block: ContentBlock;
+  index: number;
+  accentColor: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="py-6 md:py-10 max-w-3xl mx-auto text-center"
+    >
+      <div className="relative px-6 md:px-12">
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 text-6xl md:text-8xl font-serif leading-none opacity-15"
+          style={{ color: accentColor }}
+        >
+          &ldquo;
+        </div>
+        {block.quote && (
+          <blockquote
+            className="text-lg md:text-xl lg:text-2xl font-light italic leading-relaxed relative z-10 pt-6"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {block.quote}
+          </blockquote>
+        )}
+        {block.author && (
+          <p
+            className="mt-4 text-sm font-semibold uppercase tracking-[0.15em]"
+            style={{ color: accentColor }}
+          >
+            — {block.author}
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function SpacerBlock({ block }: { block: ContentBlock }) {
+  const sizeMap = { sm: "py-4", md: "py-8", lg: "py-14" };
+  const s = block.size || "md";
+  return (
+    <div className={`${sizeMap[s]} flex items-center justify-center`}>
+      <div className="w-16 h-px rounded-full" style={{ background: "var(--divider)" }} />
+    </div>
+  );
+}
+
+function GalleryBlock({ block, index }: { block: ContentBlock; index: number }) {
+  const images = block.images || [];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="py-2"
+    >
+      <div className="columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4">
+        {images.map((img, i) => (
+          <div key={i} className="break-inside-avoid">
+            <div className="rounded-xl overflow-hidden">
+              <img
+                src={img.url}
+                alt={img.caption || ""}
+                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+              />
+            </div>
+            {img.caption && (
+              <p
+                className="text-xs mt-1.5 font-medium"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                {img.caption}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Block Renderer Switch ─── */
+
+function BlockRenderer({
+  block,
+  index,
+  accentColor,
+}: {
+  block: ContentBlock;
+  index: number;
+  accentColor: string;
+}) {
+  switch (block.type) {
+    case "hero-image":
+      return <HeroImageBlock block={block} />;
+    case "text":
+      return <TextBlock block={block} index={index} />;
+    case "image-full":
+      return <ImageFullBlock block={block} index={index} />;
+    case "image-grid-2":
+      return <ImageGrid2Block block={block} index={index} />;
+    case "image-grid-3":
+      return <ImageGrid3Block block={block} index={index} />;
+    case "image-text":
+      return <ImageTextBlock block={block} index={index} accentColor={accentColor} />;
+    case "quote":
+      return <QuoteBlock block={block} index={index} accentColor={accentColor} />;
+    case "spacer":
+      return <SpacerBlock block={block} />;
+    case "gallery":
+      return <GalleryBlock block={block} index={index} />;
+    default:
+      return null;
+  }
+}
+
+/* ─── Auto Layout (for works without content blocks) ─── */
+
+function AutoLayout({ work, accentColor }: { work: WorkItem; accentColor: string }) {
+  return (
+    <div className="space-y-8">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative w-full aspect-[16/9] overflow-hidden rounded-2xl md:rounded-3xl"
+      >
+        <img
+          src={work.image}
+          alt={work.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10">
+          <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight">
+            {work.title}
+          </h2>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="max-w-3xl mx-auto text-center py-4"
+      >
+        <p
+          className="text-base md:text-lg lg:text-xl leading-relaxed"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {work.description}
+        </p>
+        <div
+          className="w-12 h-0.5 rounded-full mx-auto mt-6"
+          style={{ background: accentColor }}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─── Main Project View ─── */
+
+export function ProjectView({ work, member, onBack }: ProjectViewProps) {
+  const blocks = work.contentBlocks || [];
+  const hasBlocks = blocks.length > 0;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [work.id]);
+
+  return (
+    <div ref={scrollRef} className="h-full overflow-y-auto hide-scrollbar">
+      {/* Back navigation */}
+      <div className="sticky top-0 z-20 glass px-4 md:px-6 py-3">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm font-medium transition-all duration-300 hover:opacity-70 group"
+            style={{ color: "var(--text-primary)" }}
+          >
+            <ArrowLeft
+              size={16}
+              className="transition-transform duration-300 group-hover:-translate-x-1"
+            />
+            <span className="hidden sm:inline">Back to {member.firstName}&apos;s Portfolio</span>
+            <span className="sm:hidden">Back</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <div
+              className="w-6 h-6 rounded-lg overflow-hidden"
+              style={{ boxShadow: `0 0 0 1.5px ${member.accentColor}` }}
+            >
+              <img
+                src={member.avatar}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span
+              className="text-xs font-semibold hidden sm:inline"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {member.firstName} · {member.role}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-10 space-y-6 md:space-y-10">
+        {/* Project title (only shown if no hero block) */}
+        {hasBlocks && blocks[0]?.type !== "hero-image" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center py-4"
+          >
+            <h1
+              className="text-3xl md:text-5xl font-bold tracking-tight"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {work.title}
+            </h1>
+            <p
+              className="text-base md:text-lg mt-3"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {work.description}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Render blocks or auto layout */}
+        {hasBlocks ? (
+          blocks.map((block, i) => (
+            <BlockRenderer
+              key={block.id}
+              block={block}
+              index={i}
+              accentColor={member.accentColor}
+            />
+          ))
+        ) : (
+          <AutoLayout work={work} accentColor={member.accentColor} />
+        )}
+
+        {/* Divider */}
+        <div className="py-4 flex items-center justify-center">
+          <div
+            className="w-24 h-px rounded-full"
+            style={{ background: "var(--divider)" }}
+          />
+        </div>
+
+        {/* Tools & Meta */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="max-w-2xl mx-auto text-center pb-12"
+        >
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Wrench size={14} style={{ color: "var(--text-tertiary)" }} />
+            <span
+              className="text-xs font-semibold uppercase tracking-[0.15em]"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              Tools Used
+            </span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {work.tools.map((tool) => (
+              <span
+                key={tool}
+                className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full"
+                style={{
+                  background: `${member.accentColor}15`,
+                  color: member.accentColor,
+                }}
+              >
+                {tool}
+              </span>
+            ))}
+          </div>
+
+          {/* Project info */}
+          <div className="mt-8 pt-6 border-t" style={{ borderColor: "var(--divider)" }}>
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {work.title} — by{" "}
+              <span style={{ color: member.accentColor }}>{member.name}</span>
+            </p>
+            <p
+              className="text-xs mt-1"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {member.role}
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

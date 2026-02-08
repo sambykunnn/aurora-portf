@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useData, type SiteContent } from "@/context/DataContext";
 import type { TeamMember, WorkItem } from "@/data/teamData";
+import { BlockEditor } from "./BlockEditor";
 
 /* ─── constants ─── */
 const ADMIN_USER = "admin";
@@ -442,6 +443,14 @@ function WorkEditor({ work, accentColor, onChange, onDelete }: {
                   <img src={work.image} alt="" className="w-full h-32 object-cover" />
                 </div>
               )}
+              {/* Behance-style Content Blocks */}
+              <div className="border-t pt-4 mt-2" style={{ borderColor: "var(--divider)" }}>
+                <BlockEditor
+                  blocks={work.contentBlocks || []}
+                  onChange={(blocks) => onChange({ ...work, contentBlocks: blocks })}
+                  accentColor={accentColor}
+                />
+              </div>
               <button
                 onClick={onDelete}
                 className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
@@ -452,9 +461,6 @@ function WorkEditor({ work, accentColor, onChange, onDelete }: {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Invisible usage of accentColor to prevent lint error */}
-      <span className="hidden">{accentColor}</span>
     </div>
   );
 }
