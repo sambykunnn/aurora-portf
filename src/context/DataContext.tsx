@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import { teamMembers as defaultTeamMembers, type TeamMember } from "@/data/teamData";
 
 export interface SiteContent {
@@ -49,6 +49,8 @@ const DEFAULT_GITHUB_CONFIG: GitHubConfig = {
   filePath: "public/data.json",
 };
 
+export type SyncStatus = "idle" | "saving" | "syncing" | "success" | "error";
+
 interface DataContextType {
   siteContent: SiteContent;
   teamMembers: TeamMember[];
@@ -59,9 +61,16 @@ interface DataContextType {
   // GitHub integration
   githubConfig: GitHubConfig;
   setGitHubConfig: (config: GitHubConfig) => void;
+  isGitHubConfigured: boolean;
+  // Unified save: localStorage + GitHub
   saveToGitHub: () => Promise<{ success: boolean; message: string }>;
+  pushToGitHub: (site?: SiteContent, team?: TeamMember[]) => Promise<{ success: boolean; message: string }>;
+  loadFromGitHub: () => Promise<{ success: boolean; message: string }>;
+  syncStatus: SyncStatus;
+  syncMessage: string;
   isDeploying: boolean;
   lastDeployTime: string | null;
+  dataSource: "default" | "localStorage" | "github" | "data.json";
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -70,23 +79,53 @@ const SITE_KEY = "aurora_site_content";
 const TEAM_KEY = "aurora_team_members";
 const GITHUB_KEY = "aurora_github_config";
 const DEPLOY_TIME_KEY = "aurora_last_deploy";
+const DATA_SOURCE_KEY = "aurora_data_source";
 
 /* ─── GitHub API helpers ─── */
 
+async function githubApiRequest(
+  url: string,
+  token: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  return fetch(url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+}
+
 async function getFileSha(config: GitHubConfig): Promise<string | null> {
   try {
-    const response = await fetch(
+    const response = await githubApiRequest(
       `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}?ref=${config.branch}`,
-      {
-        headers: {
-          Authorization: `Bearer ${config.token}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
+      config.token
     );
     if (response.ok) {
       const data = await response.json();
       return data.sha;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function getFileContent(config: GitHubConfig): Promise<{ content: string; sha: string } | null> {
+  try {
+    const response = await githubApiRequest(
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}?ref=${config.branch}`,
+      config.token
+    );
+    if (response.ok) {
+      const data = await response.json();
+      // GitHub returns base64 encoded content
+      const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ""))));
+      return { content: decoded, sha: data.sha };
     }
     return null;
   } catch {
@@ -109,21 +148,17 @@ async function commitFileToGitHub(
       body.sha = sha;
     }
 
-    const response = await fetch(
+    const response = await githubApiRequest(
       `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}`,
+      config.token,
       {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${config.token}`,
-          Accept: "application/vnd.github.v3+json",
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(body),
       }
     );
 
     if (response.ok) {
-      return { success: true, message: "Changes committed to GitHub! Vercel will auto-deploy." };
+      return { success: true, message: "✓ Saved to GitHub — Vercel will auto-deploy." };
     }
 
     const errorData = await response.json();
@@ -143,6 +178,7 @@ async function commitFileToGitHub(
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [dataSource, setDataSource] = useState<"default" | "localStorage" | "github" | "data.json">("default");
 
   const [siteContent, setSiteContent] = useState<SiteContent>(() => {
     try {
@@ -172,37 +208,89 @@ export function DataProvider({ children }: { children: ReactNode }) {
   });
 
   const [isDeploying, setIsDeploying] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const [syncMessage, setSyncMessage] = useState("");
   const [lastDeployTime, setLastDeployTime] = useState<string | null>(() => {
     return localStorage.getItem(DEPLOY_TIME_KEY);
   });
 
-  // On mount, try to load data.json from public folder (deployed data)
+  const isGitHubConfigured = Boolean(githubConfig.owner && githubConfig.repo && githubConfig.token);
+
+  // Track latest state for GitHub push (avoids stale closure issues)
+  const siteContentRef = useRef(siteContent);
+  const teamMembersRef = useRef(teamMembers);
+  const githubConfigRef = useRef(githubConfig);
+
+  useEffect(() => { siteContentRef.current = siteContent; }, [siteContent]);
+  useEffect(() => { teamMembersRef.current = teamMembers; }, [teamMembers]);
+  useEffect(() => { githubConfigRef.current = githubConfig; }, [githubConfig]);
+
+  // ─── Load data on mount ───
   useEffect(() => {
-    async function loadDeployedData() {
+    async function loadData() {
+      const hasLocalSite = localStorage.getItem(SITE_KEY);
+      const hasLocalTeam = localStorage.getItem(TEAM_KEY);
+      const savedSource = localStorage.getItem(DATA_SOURCE_KEY);
+
+      // If we have GitHub config, try loading from GitHub API first
+      const ghConfig = githubConfigRef.current;
+      if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
+        try {
+          const fileData = await getFileContent(ghConfig);
+          if (fileData) {
+            const parsed = JSON.parse(fileData.content);
+            if (parsed.siteContent) {
+              setSiteContent({ ...defaultSiteContent, ...parsed.siteContent });
+              localStorage.setItem(SITE_KEY, JSON.stringify(parsed.siteContent));
+            }
+            if (parsed.teamMembers) {
+              setTeamMembers(parsed.teamMembers);
+              localStorage.setItem(TEAM_KEY, JSON.stringify(parsed.teamMembers));
+            }
+            setDataSource("github");
+            localStorage.setItem(DATA_SOURCE_KEY, "github");
+            setDataLoaded(true);
+            return;
+          }
+        } catch {
+          // Fall through to other loading methods
+        }
+      }
+
+      // Try /data.json (deployed file)
       try {
         const response = await fetch("/data.json");
         if (response.ok) {
           const contentType = response.headers.get("content-type") || "";
           if (contentType.includes("application/json")) {
             const data = await response.json();
-            // Only use deployed data if there's no localStorage override
-            const hasLocalSite = localStorage.getItem(SITE_KEY);
-            const hasLocalTeam = localStorage.getItem(TEAM_KEY);
-
             if (!hasLocalSite && data.siteContent) {
               setSiteContent({ ...defaultSiteContent, ...data.siteContent });
             }
             if (!hasLocalTeam && data.teamMembers) {
               setTeamMembers(data.teamMembers);
             }
+            if (!savedSource) {
+              setDataSource("data.json");
+              localStorage.setItem(DATA_SOURCE_KEY, "data.json");
+            }
+            setDataLoaded(true);
+            return;
           }
         }
       } catch {
-        // data.json doesn't exist yet, use defaults
+        // data.json doesn't exist
+      }
+
+      // Use localStorage or defaults
+      if (hasLocalSite || hasLocalTeam) {
+        setDataSource("localStorage");
+      } else {
+        setDataSource("default");
       }
       setDataLoaded(true);
     }
-    loadDeployedData();
+    loadData();
   }, []);
 
   // Persist to localStorage
@@ -220,67 +308,145 @@ export function DataProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(GITHUB_KEY, JSON.stringify(githubConfig));
   }, [githubConfig]);
 
-  const updateSiteContent = (content: Partial<SiteContent>) => {
+  const updateSiteContent = useCallback((content: Partial<SiteContent>) => {
     setSiteContent((prev) => ({ ...prev, ...content }));
-  };
+    setDataSource("localStorage");
+  }, []);
 
-  const updateTeamMembers = (members: TeamMember[]) => {
+  const updateTeamMembers = useCallback((members: TeamMember[]) => {
     setTeamMembers(members);
-  };
+    setDataSource("localStorage");
+  }, []);
 
-  const updateTeamMember = (id: string, updates: Partial<TeamMember>) => {
+  const updateTeamMember = useCallback((id: string, updates: Partial<TeamMember>) => {
     setTeamMembers((prev) =>
       prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
     );
-  };
+    setDataSource("localStorage");
+  }, []);
 
-  const resetToDefaults = () => {
+  const resetToDefaults = useCallback(() => {
     setSiteContent(defaultSiteContent);
     setTeamMembers(defaultTeamMembers);
     localStorage.removeItem(SITE_KEY);
     localStorage.removeItem(TEAM_KEY);
-  };
+    localStorage.removeItem(DATA_SOURCE_KEY);
+    setDataSource("default");
+  }, []);
 
-  const setGitHubConfig = (config: GitHubConfig) => {
+  const setGitHubConfig = useCallback((config: GitHubConfig) => {
     setGitHubConfigState(config);
-  };
+  }, []);
 
-  const saveToGitHub = useCallback(async (): Promise<{ success: boolean; message: string }> => {
-    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
-      return { success: false, message: "GitHub configuration incomplete. Please fill in owner, repo, and token." };
+  // Push current data to GitHub
+  const pushToGitHub = useCallback(async (
+    site?: SiteContent,
+    team?: TeamMember[]
+  ): Promise<{ success: boolean; message: string }> => {
+    const config = githubConfigRef.current;
+    if (!config.owner || !config.repo || !config.token) {
+      return { success: false, message: "GitHub not configured. Go to Deploy tab to set up." };
     }
 
-    setIsDeploying(true);
+    setSyncStatus("syncing");
+    setSyncMessage("Pushing to GitHub...");
+
     try {
-      // Build the full data payload
       const dataPayload = JSON.stringify(
-        { siteContent, teamMembers },
+        {
+          siteContent: site || siteContentRef.current,
+          teamMembers: team || teamMembersRef.current,
+          _lastUpdated: new Date().toISOString(),
+        },
         null,
         2
       );
 
-      // Get existing file SHA (needed for updates)
-      const sha = await getFileSha(githubConfig);
-
-      // Commit the file
-      const result = await commitFileToGitHub(githubConfig, dataPayload, sha);
+      const sha = await getFileSha(config);
+      const result = await commitFileToGitHub(config, dataPayload, sha);
 
       if (result.success) {
         const now = new Date().toLocaleString();
         setLastDeployTime(now);
         localStorage.setItem(DEPLOY_TIME_KEY, now);
+        setDataSource("github");
+        localStorage.setItem(DATA_SOURCE_KEY, "github");
+        setSyncStatus("success");
+        setSyncMessage(result.message);
+        // Auto-clear success status after 5s
+        setTimeout(() => {
+          setSyncStatus("idle");
+          setSyncMessage("");
+        }, 5000);
+      } else {
+        setSyncStatus("error");
+        setSyncMessage(result.message);
+        setTimeout(() => {
+          setSyncStatus("idle");
+          setSyncMessage("");
+        }, 8000);
       }
 
       return result;
     } catch (err) {
-      return {
-        success: false,
-        message: `Deploy failed: ${err instanceof Error ? err.message : "Unknown error"}`,
-      };
-    } finally {
-      setIsDeploying(false);
+      const msg = `Push failed: ${err instanceof Error ? err.message : "Unknown error"}`;
+      setSyncStatus("error");
+      setSyncMessage(msg);
+      setTimeout(() => { setSyncStatus("idle"); setSyncMessage(""); }, 8000);
+      return { success: false, message: msg };
     }
-  }, [githubConfig, siteContent, teamMembers]);
+  }, []);
+
+  // Load data from GitHub API
+  const loadFromGitHub = useCallback(async (): Promise<{ success: boolean; message: string }> => {
+    const config = githubConfigRef.current;
+    if (!config.owner || !config.repo || !config.token) {
+      return { success: false, message: "GitHub not configured." };
+    }
+
+    setSyncStatus("syncing");
+    setSyncMessage("Loading from GitHub...");
+
+    try {
+      const fileData = await getFileContent(config);
+      if (!fileData) {
+        setSyncStatus("error");
+        setSyncMessage("data.json not found in repo. Save first to create it.");
+        setTimeout(() => { setSyncStatus("idle"); setSyncMessage(""); }, 5000);
+        return { success: false, message: "File not found in repo." };
+      }
+
+      const parsed = JSON.parse(fileData.content);
+      if (parsed.siteContent) {
+        setSiteContent({ ...defaultSiteContent, ...parsed.siteContent });
+        localStorage.setItem(SITE_KEY, JSON.stringify(parsed.siteContent));
+      }
+      if (parsed.teamMembers) {
+        setTeamMembers(parsed.teamMembers);
+        localStorage.setItem(TEAM_KEY, JSON.stringify(parsed.teamMembers));
+      }
+      setDataSource("github");
+      localStorage.setItem(DATA_SOURCE_KEY, "github");
+      setSyncStatus("success");
+      setSyncMessage("Data loaded from GitHub!");
+      setTimeout(() => { setSyncStatus("idle"); setSyncMessage(""); }, 5000);
+      return { success: true, message: "Data loaded from GitHub!" };
+    } catch (err) {
+      const msg = `Load failed: ${err instanceof Error ? err.message : "Unknown error"}`;
+      setSyncStatus("error");
+      setSyncMessage(msg);
+      setTimeout(() => { setSyncStatus("idle"); setSyncMessage(""); }, 8000);
+      return { success: false, message: msg };
+    }
+  }, []);
+
+  // Legacy saveToGitHub (same as pushToGitHub)
+  const saveToGitHub = useCallback(async (): Promise<{ success: boolean; message: string }> => {
+    setIsDeploying(true);
+    const result = await pushToGitHub();
+    setIsDeploying(false);
+    return result;
+  }, [pushToGitHub]);
 
   return (
     <DataContext.Provider
@@ -293,9 +459,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
         resetToDefaults,
         githubConfig,
         setGitHubConfig,
+        isGitHubConfigured,
         saveToGitHub,
+        pushToGitHub,
+        loadFromGitHub,
+        syncStatus,
+        syncMessage,
         isDeploying,
         lastDeployTime,
+        dataSource,
       }}
     >
       {children}
