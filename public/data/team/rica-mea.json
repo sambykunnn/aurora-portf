@@ -125,20 +125,6 @@
           "size": "md"
         },
         {
-          "id": "blk_rebrext",
-          "type": "image-grid-2",
-          "images": [
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/63d69d243458737.698219ad18794.jpg",
-              "caption": ""
-            },
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/bd0cf8243458737.698219ad18d6f.png",
-              "caption": ""
-            }
-          ]
-        },
-        {
           "id": "blk_86zjyq5",
           "type": "image-full",
           "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/7cba81243458737.698219ae4b705.jpg",
@@ -157,6 +143,12 @@
               "caption": ""
             }
           ]
+        },
+        {
+          "id": "blk_txij7rj",
+          "type": "image-full",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/63d69d243458737.698219ad18794.jpg",
+          "caption": ""
         },
         {
           "id": "blk_ydlw1iq",

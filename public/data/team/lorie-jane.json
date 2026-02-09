@@ -30,8 +30,32 @@
       "id": "vfksk1v",
       "title": "Short / Long Form Videos",
       "description": "",
-      "tools": [],
-      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop"
+      "tools": [
+        "Capcut",
+        "Adobe Premiere"
+      ],
+      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop",
+      "contentBlocks": [
+        {
+          "id": "blk_lxs4i4u",
+          "type": "video-grid",
+          "heading": "",
+          "videos": [
+            {
+              "url": "https://www.youtube.com/shorts/StswIc7b8X0",
+              "caption": ""
+            },
+            {
+              "url": "https://www.youtube.com/shorts/YZxkC2-6gsA?feature=share",
+              "caption": ""
+            },
+            {
+              "url": "https://www.youtube.com/shorts/lhfoSDsrwbM?feature=share",
+              "caption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
