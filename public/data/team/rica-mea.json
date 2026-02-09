@@ -17,11 +17,11 @@
   "socials": [
     {
       "platform": "Instagram",
-      "url": ""
+      "url": "meamisterio"
     },
     {
       "platform": "TikTok",
-      "url": ""
+      "url": "awera"
     }
   ],
   "works": [
@@ -29,7 +29,9 @@
       "id": "df6yv47",
       "title": "Fashion Modeling",
       "description": "A curated collection of modeling works showcasing versatility in posing, expression, and visual storytelling across different concepts.",
-      "tools": [],
+      "tools": [
+        "Lightroom"
+      ],
       "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/1c4f51243458737.698219b0a2137.png",
       "contentBlocks": [
         {
@@ -113,7 +115,7 @@
         {
           "id": "blk_ejshlp5",
           "type": "text",
-          "heading": "Photograph by",
+          "heading": "Photographed by",
           "body": "Marcus Carandang\nConcept: Portraits and Natural Lights\n2024",
           "alignment": "center"
         },
@@ -157,7 +159,7 @@
         {
           "id": "blk_ydlw1iq",
           "type": "text",
-          "heading": "Photograph by",
+          "heading": "Photographed by",
           "body": " Eunice Presco\nConcept: Midsommar Vibes\n2024",
           "alignment": "center"
         },
@@ -165,6 +167,80 @@
           "id": "blk_avg48nb",
           "type": "spacer",
           "size": "md"
+        },
+        {
+          "id": "blk_dc7avzq",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/2ca3ec243458737.698219aee8d4f.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/111213243458737.698219aee83c6.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_bm710te",
+          "type": "text",
+          "heading": "Photographed by",
+          "body": "Gian Carlo Sambayan\nConcept: Mama Mia Outfit\n2025",
+          "alignment": "center"
+        },
+        {
+          "id": "blk_wf4ztur",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_zm5vk11",
+          "type": "image-grid-6",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/ff2cf4243458737.698219afe634f.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/4f11b4243458737.698219afe76bb.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/bc3a5e243458737.698219afe5bb8.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/04794a243458737.69821aabacb03.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/d4a969243458737.69821aabab486.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/a69952243458737.69821aababfed.png",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_bts2bqf",
+          "type": "text",
+          "heading": "Photographed by",
+          "body": "Lorie Jane Levita\nConcept: Mama Mia Outfit\n2025",
+          "alignment": "center"
+        },
+        {
+          "id": "blk_z46kxtq",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_94y3orb",
+          "type": "quote",
+          "quote": "Thank you for viewing!",
+          "author": ""
         }
       ]
     }
