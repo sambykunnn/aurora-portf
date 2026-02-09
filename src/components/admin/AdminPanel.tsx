@@ -4,11 +4,9 @@ import {
   X, LogOut, Settings, Users, Image, Lock, Eye, EyeOff,
   Save, RotateCcw, Plus, Trash2, ChevronDown, ChevronRight,
   Check, AlertCircle, GripVertical, ExternalLink, Palette,
-  Rocket, Github, RefreshCw, Shield, Clock, Download, Upload,
-  Cloud, CloudOff, Loader2, CheckCircle2, XCircle, FileJson,
-  FolderTree,
+  Download, Upload, FolderTree, FileJson, HardDrive, Info,
 } from "lucide-react";
-import { useData, type SiteContent, type GitHubConfig, type SyncStatus } from "@/context/DataContext";
+import { useData, type SiteContent, getMemberFileName } from "@/context/DataContext";
 import type { TeamMember, WorkItem } from "@/data/teamData";
 import { BlockEditor } from "./BlockEditor";
 
@@ -24,29 +22,15 @@ function hexToRgb(hex: string): string | null {
   return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
 }
 
-/* ─── Sync Badge ─── */
-function SyncBadge({ status, message, isConfigured }: { status: SyncStatus; message: string; isConfigured: boolean }) {
-  if (!isConfigured) {
-    return (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
-        <CloudOff size={11} /><span>Local Only</span>
-      </div>
-    );
-  }
-  const configs: Record<SyncStatus, { icon: ReactNode; color: string; bg: string; label: string }> = {
-    idle: { icon: <Cloud size={11} />, color: "#10B981", bg: "rgba(16,185,129,0.1)", label: "GitHub Connected" },
-    saving: { icon: <Loader2 size={11} className="animate-spin" />, color: "#6366F1", bg: "rgba(99,102,241,0.1)", label: "Saving..." },
-    syncing: { icon: <RefreshCw size={11} className="animate-spin" />, color: "#F59E0B", bg: "rgba(245,158,11,0.1)", label: "Syncing..." },
-    success: { icon: <CheckCircle2 size={11} />, color: "#10B981", bg: "rgba(16,185,129,0.1)", label: "Saved ✓" },
-    error: { icon: <XCircle size={11} />, color: "#EF4444", bg: "rgba(239,68,68,0.1)", label: "Error" },
-  };
-  const cfg = configs[status];
-  return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-300"
-      style={{ background: cfg.bg, color: cfg.color }} title={message || cfg.label}>
-      {cfg.icon}<span>{message ? (message.length > 30 ? message.slice(0, 30) + "..." : message) : cfg.label}</span>
-    </div>
-  );
+function downloadJsonFile(data: unknown, filename: string) {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /* ─── Toast ─── */
@@ -112,17 +96,14 @@ function TagsInput({ tags, onChange, placeholder }: { tags: string[]; onChange: 
 }
 
 /* ─── Save Button ─── */
-function SaveButton({ onSave, hasChanges, label = "Save", pushLabel }: { onSave: () => void; hasChanges: boolean; label?: string; pushLabel?: string }) {
-  const { isGitHubConfigured, syncStatus } = useData();
-  const isSyncing = syncStatus === "syncing" || syncStatus === "saving";
+function SaveButton({ onSave, hasChanges, label = "Save" }: { onSave: () => void; hasChanges: boolean; label?: string }) {
   if (!hasChanges) return null;
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex gap-2">
-      <button onClick={onSave} disabled={isSyncing}
-        className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-300 flex items-center gap-1.5 disabled:opacity-60 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-        style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
-        {isSyncing ? <><Loader2 size={14} className="animate-spin" /> Saving...</>
-          : <>{isGitHubConfigured ? <Cloud size={14} /> : <Save size={14} />}{pushLabel && isGitHubConfigured ? pushLabel : label}</>}
+    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+      <button onClick={onSave}
+        className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-300 flex items-center gap-1.5 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+        style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
+        <Save size={14} />{label}
       </button>
     </motion.div>
   );
@@ -185,7 +166,7 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
 
 /* ─── Site Settings Editor ─── */
 function SiteSettingsEditor({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
-  const { siteContent, teamMembers, updateSiteContent, resetToDefaults, isGitHubConfigured, pushSiteToGitHub } = useData();
+  const { siteContent, updateSiteContent, resetToDefaults } = useData();
   const [draft, setDraft] = useState<SiteContent>(siteContent);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -193,37 +174,26 @@ function SiteSettingsEditor({ onToast }: { onToast: (msg: string, type: "success
 
   const update = (key: keyof SiteContent, value: string | string[]) => { setDraft((prev) => ({ ...prev, [key]: value })); setHasChanges(true); };
 
-  const save = async () => {
+  const save = () => {
     const merged = { ...siteContent, ...draft };
     updateSiteContent(merged);
     setHasChanges(false);
     onToast("Site settings saved!", "success");
-    if (isGitHubConfigured) {
-      const result = await pushSiteToGitHub(merged);
-      if (!result.success) onToast(result.message, "error");
-      else onToast("✓ site.json pushed to GitHub", "success");
-    }
   };
 
   const discard = () => { setDraft(siteContent); setHasChanges(false); };
   const reset = () => { if (confirm("Reset all site content and team data to defaults?")) { resetToDefaults(); onToast("Reset to defaults!", "success"); } };
-
-  // unused var fix
-  void teamMembers;
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Site Settings</h2>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
-            Configure global site content
-            {isGitHubConfigured && <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">→ site.json</span>}
-          </p>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>Configure global site content</p>
         </div>
         <div className="flex items-center gap-2">
           <DiscardButton onDiscard={discard} hasChanges={hasChanges} />
-          <SaveButton onSave={save} hasChanges={hasChanges} pushLabel="Save & Push site.json" />
+          <SaveButton onSave={save} hasChanges={hasChanges} />
         </div>
       </div>
 
@@ -317,22 +287,16 @@ function WorkEditor({ work, accentColor, onChange, onDelete }: { work: WorkItem;
 
 /* ─── Member Editor ─── */
 function MemberEditor({ member, onBack, onToast }: { member: TeamMember; onBack: () => void; onToast: (msg: string, type: "success" | "error") => void }) {
-  const { updateTeamMember, isGitHubConfigured, pushMemberToGitHub } = useData();
+  const { updateTeamMember } = useData();
   const [draft, setDraft] = useState<TeamMember>(member);
   const [hasChanges, setHasChanges] = useState(false);
 
   const update = <K extends keyof TeamMember>(key: K, value: TeamMember[K]) => { setDraft((prev) => ({ ...prev, [key]: value })); setHasChanges(true); };
 
-  const save = async () => {
+  const save = () => {
     updateTeamMember(draft.id, draft);
     setHasChanges(false);
     onToast(`${draft.firstName}'s profile saved!`, "success");
-    if (isGitHubConfigured) {
-      // Push only this member's file
-      const result = await pushMemberToGitHub(draft);
-      if (!result.success) onToast(result.message, "error");
-      else onToast(`✓ ${draft.firstName}'s file pushed to GitHub`, "success");
-    }
   };
 
   const updateSocial = (index: number, field: "platform" | "url", value: string) => {
@@ -363,16 +327,13 @@ function MemberEditor({ member, onBack, onToast }: { member: TeamMember; onBack:
             </div>
             <div>
               <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>{draft.name}</h2>
-              <p className="text-sm" style={{ color: draft.accentColor }}>
-                {draft.role}
-                {isGitHubConfigured && <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">→ {draft.id}.json</span>}
-              </p>
+              <p className="text-sm" style={{ color: draft.accentColor }}>{draft.role}</p>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <DiscardButton onDiscard={() => { setDraft(member); setHasChanges(false); }} hasChanges={hasChanges} />
-          <SaveButton onSave={save} hasChanges={hasChanges} pushLabel={`Save & Push`} />
+          <SaveButton onSave={save} hasChanges={hasChanges} />
         </div>
       </div>
 
@@ -466,7 +427,7 @@ function TeamMembersEditor({ onToast }: { onToast: (msg: string, type: "success"
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Team Members</h2>
-        <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>Click a member to edit. Each member is saved as a separate JSON file.</p>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>Click a member to edit their profile and portfolio.</p>
       </div>
       <div className="space-y-3">
         {teamMembers.map((member, i) => (
@@ -493,45 +454,70 @@ function TeamMembersEditor({ onToast }: { onToast: (msg: string, type: "success"
   );
 }
 
-/* ─── GitHub / Files ─── */
-function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
-  const {
-    githubConfig, setGitHubConfig, saveToGitHub, loadFromGitHub,
-    isDeploying, lastDeployTime, syncStatus, syncMessage,
-    siteContent, teamMembers, updateSiteContent, updateTeamMembers,
-    isGitHubConfigured, dataSource, fileStructure, changedFiles,
-  } = useData();
-  const [draft, setDraft] = useState<GitHubConfig>(githubConfig);
-  const [showToken, setShowToken] = useState(false);
-  const [configChanged, setConfigChanged] = useState(false);
+/* ─── Export / Import Tab ─── */
+function ExportImportEditor({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
+  const { siteContent, teamMembers, updateSiteContent, updateTeamMembers, dataSource } = useData();
 
-  useEffect(() => { setDraft(githubConfig); setConfigChanged(false); }, [githubConfig]);
-
-  const updateDraft = (key: keyof GitHubConfig, value: string) => { setDraft((prev) => ({ ...prev, [key]: value })); setConfigChanged(true); };
-
-  const saveConfig = () => { setGitHubConfig(draft); setConfigChanged(false); onToast("GitHub config saved!", "success"); };
-
-  const handleDeploy = async () => {
-    if (configChanged) { setGitHubConfig(draft); setConfigChanged(false); }
-    const result = await saveToGitHub();
-    onToast(result.message, result.success ? "success" : "error");
+  const dataSourceLabel: Record<string, string> = {
+    default: "📦 Factory defaults",
+    localStorage: "💾 Browser localStorage",
+    "data.json": "📄 Deployed data/ folder (GitHub)",
   };
 
-  const handlePull = async () => {
-    const result = await loadFromGitHub();
-    onToast(result.message, result.success ? "success" : "error");
+  /* ── File structure ── */
+  const fileStructure = [
+    { path: "public/data/site.json", description: "Studio settings, hero text, section titles, contact info" },
+    { path: "public/data/team/index.json", description: "Team member manifest (list of filenames)" },
+    ...teamMembers.map((m) => ({
+      path: `public/data/team/${getMemberFileName(m.id)}.json`,
+      description: `${m.name} — ${m.role}`,
+    })),
+  ];
+
+  /* ── Export: single file per piece ── */
+  const handleExportSiteJson = () => {
+    downloadJsonFile(siteContent, "site.json");
+    onToast("Downloaded site.json", "success");
   };
 
-  const handleExport = () => {
-    const data = JSON.stringify({ siteContent, teamMembers }, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `aurora-data-${new Date().toISOString().split("T")[0]}.json`;
-    a.click(); URL.revokeObjectURL(url);
-    onToast("Data exported!", "success");
+  const handleExportIndexJson = () => {
+    downloadJsonFile({ members: teamMembers.map((m) => getMemberFileName(m.id)) }, "index.json");
+    onToast("Downloaded index.json", "success");
   };
 
+  const handleExportMember = (member: TeamMember) => {
+    downloadJsonFile(member, `${getMemberFileName(member.id)}.json`);
+    onToast(`Downloaded ${getMemberFileName(member.id)}.json`, "success");
+  };
+
+  const handleExportAllIndividual = () => {
+    downloadJsonFile(siteContent, "site.json");
+    downloadJsonFile({ members: teamMembers.map((m) => getMemberFileName(m.id)) }, "index.json");
+    teamMembers.forEach((m) => {
+      downloadJsonFile(m, `${getMemberFileName(m.id)}.json`);
+    });
+    onToast(`Downloaded ${2 + teamMembers.length} files`, "success");
+  };
+
+  /* ── Export: GitHub-ready bundle ── */
+  const handleExportBundle = () => {
+    const bundle: Record<string, unknown> = {};
+    bundle["public/data/site.json"] = siteContent;
+    bundle["public/data/team/index.json"] = { members: teamMembers.map((m) => getMemberFileName(m.id)) };
+    teamMembers.forEach((m) => {
+      bundle[`public/data/team/${getMemberFileName(m.id)}.json`] = m;
+    });
+    downloadJsonFile(bundle, `aurora-bundle-${new Date().toISOString().split("T")[0]}.json`);
+    onToast("Exported GitHub bundle", "success");
+  };
+
+  /* ── Export: backup ── */
+  const handleExportBackup = () => {
+    downloadJsonFile({ siteContent, teamMembers }, `aurora-backup-${new Date().toISOString().split("T")[0]}.json`);
+    onToast("Backup exported!", "success");
+  };
+
+  /* ── Import ── */
   const handleImport = () => {
     const input = document.createElement("input");
     input.type = "file"; input.accept = ".json";
@@ -539,136 +525,96 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
       try {
-        const text = await file.text(); const data = JSON.parse(text);
-        if (data.siteContent) updateSiteContent(data.siteContent);
-        if (data.teamMembers) updateTeamMembers(data.teamMembers);
-        onToast("Data imported! Push to GitHub to deploy.", "success");
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        // Format 1: Backup (siteContent + teamMembers)
+        if (data.siteContent && data.teamMembers) {
+          updateSiteContent(data.siteContent);
+          updateTeamMembers(data.teamMembers);
+          onToast("Imported from backup!", "success");
+          return;
+        }
+
+        // Format 2: GitHub bundle (keys = file paths)
+        if (data["public/data/site.json"]) {
+          const site = data["public/data/site.json"];
+          if (site) updateSiteContent(site);
+
+          const indexFile = data["public/data/team/index.json"];
+          if (indexFile && indexFile.members) {
+            const members: TeamMember[] = [];
+            for (const memberFileName of indexFile.members) {
+              const memberData = data[`public/data/team/${memberFileName}.json`];
+              if (memberData) {
+                if (!memberData.firstName && memberData.shortName) memberData.firstName = memberData.shortName;
+                members.push(memberData as TeamMember);
+              }
+            }
+            if (members.length > 0) updateTeamMembers(members);
+          }
+          onToast("Imported from GitHub bundle!", "success");
+          return;
+        }
+
+        // Format 3: Single member file
+        if (data.id && data.name && Array.isArray(data.works)) {
+          const existing = teamMembers.find((m) => m.id === data.id);
+          if (existing) {
+            const updated = teamMembers.map((m) => m.id === data.id ? { ...m, ...data } : m);
+            updateTeamMembers(updated);
+            onToast(`Imported ${data.firstName || data.name}'s profile!`, "success");
+          } else {
+            onToast("Member ID not found. Import skipped.", "error");
+          }
+          return;
+        }
+
+        // Format 4: Site settings file
+        if (data.studioName) {
+          updateSiteContent(data);
+          onToast("Site settings imported!", "success");
+          return;
+        }
+
+        onToast("Unrecognized JSON format", "error");
       } catch { onToast("Failed to parse JSON file", "error"); }
     };
     input.click();
   };
 
-  const dataSourceLabel: Record<string, string> = {
-    default: "📦 Factory defaults",
-    localStorage: "💾 Browser storage (local only)",
-    github: "☁️ GitHub repository (individual files)",
-    "data.json": "📄 Deployed data/ folder",
-  };
-
-  const changedCount = (changedFiles.site ? 1 : 0) + changedFiles.members.size;
-
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>GitHub Integration</h2>
+        <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Export & Import</h2>
         <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
-          Each piece of content is stored as a separate JSON file in your GitHub repo.
+          Download JSON files, put them in your GitHub repo, and Vercel auto-deploys.
         </p>
       </div>
 
-      {/* Status */}
-      <div className="glass-card rounded-2xl p-6 space-y-4">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-            style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
-            {isGitHubConfigured ? <Check size={22} className="text-white" /> : <Github size={22} className="text-white" />}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
-              {isGitHubConfigured ? "GitHub Connected" : "Connect GitHub Repository"}
-            </h3>
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              {isGitHubConfigured ? `${draft.owner}/${draft.repo} (${draft.branch})` : "Configure below to enable persistent saves"}
-            </p>
-          </div>
-          <SyncBadge status={syncStatus} message={syncMessage} isConfigured={isGitHubConfigured} />
+      {/* Current Data Source */}
+      <div className="glass-card rounded-2xl p-5 flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
+          <HardDrive size={18} className="text-white" />
         </div>
-
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background: "var(--bg-secondary)" }}>
-          <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
-            Data source: <strong>{dataSourceLabel[dataSource] || dataSource}</strong>
-          </span>
-        </div>
-
-        {changedCount > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-500/20" style={{ background: "rgba(245,158,11,0.05)" }}>
-            <AlertCircle size={14} className="text-amber-500" />
-            <span className="text-xs font-medium text-amber-600">
-              {changedCount} file{changedCount > 1 ? "s" : ""} changed locally (not yet pushed to GitHub)
-            </span>
-          </div>
-        )}
-
-        {lastDeployTime && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background: "var(--bg-secondary)" }}>
-            <Clock size={14} style={{ color: "var(--text-tertiary)" }} />
-            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Last pushed: <strong>{lastDeployTime}</strong></span>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button onClick={handleDeploy} disabled={isDeploying || !isGitHubConfigured}
-            className="py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
-            style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #9ca3af, #6b7280)" }}>
-            {isDeploying ? <><RefreshCw size={16} className="animate-spin" /> Pushing All Files...</> : <><Rocket size={16} /> Push All Files to GitHub</>}
-          </button>
-          <button onClick={handlePull} disabled={isDeploying || !isGitHubConfigured}
-            className="py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
-            style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "linear-gradient(135deg, #9ca3af, #6b7280)" }}>
-            {syncStatus === "syncing" ? <><RefreshCw size={16} className="animate-spin" /> Pulling...</> : <><Download size={16} /> Pull All Files from GitHub</>}
-          </button>
+        <div className="flex-1">
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Current Data Source</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{dataSourceLabel[dataSource] || dataSource}</p>
         </div>
       </div>
 
-      {/* File Structure */}
+      {/* How it Works */}
       <div className="glass-card rounded-2xl p-6 space-y-4">
         <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
-          <FolderTree size={14} /> File Structure in GitHub
-        </h3>
-        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-          Each file can be edited directly on GitHub. Pushing a commit triggers Vercel auto-deploy.
-        </p>
-        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--divider)" }}>
-          {fileStructure.map((file, i) => {
-            const isChanged = file.path === "public/data/site.json" ? changedFiles.site
-              : changedFiles.members.has(teamMembers.find((m) => file.path.includes(m.id))?.id || "");
-            return (
-              <div key={i} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 transition-colors"
-                style={{ borderColor: "var(--divider)", background: isChanged ? "rgba(245,158,11,0.05)" : "transparent" }}>
-                <FileJson size={14} style={{ color: isChanged ? "#F59E0B" : "var(--text-tertiary)" }} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-mono font-medium truncate" style={{ color: "var(--text-primary)" }}>{file.path}</p>
-                  <p className="text-[10px] truncate" style={{ color: "var(--text-tertiary)" }}>{file.description}</p>
-                </div>
-                {isChanged && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 flex-shrink-0">modified</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="rounded-xl p-4 border border-blue-500/20" style={{ background: "rgba(99,102,241,0.05)" }}>
-          <p className="text-xs font-medium text-blue-600 flex items-start gap-2">
-            <FolderTree size={14} className="flex-shrink-0 mt-0.5" />
-            <span>
-              <strong>To edit content directly on GitHub:</strong> Navigate to the <code className="bg-blue-500/10 px-1 rounded text-[11px]">public/data/</code> folder in your repo, 
-              edit the JSON file, commit, and Vercel will auto-deploy. Each member has their own file, so team edits don&apos;t conflict.
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {/* How it works */}
-      <div className="glass-card rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
-          <Shield size={14} /> How It Works
+          <Info size={14} /> How to Update Your Site
         </h3>
         <div className="space-y-3">
           {[
-            { step: "1", text: "Content is split into individual JSON files: site.json + one file per team member" },
-            { step: "2", text: "Saving site settings pushes only site.json. Saving a member pushes only that member's file." },
-            { step: "3", text: "You can also edit these JSON files directly on GitHub — just commit and Vercel auto-deploys (~30s)" },
-            { step: "4", text: '"Push All" commits every file at once. "Pull" loads all files from your repo into the admin panel.' },
+            { step: "1", text: "Edit content in the admin panel (Site & Team tabs) → changes save to your browser automatically." },
+            { step: "2", text: "Click \"Export All Files\" below to download all JSON files." },
+            { step: "3", text: "Put the files in your GitHub repo under public/data/ (see file structure below)." },
+            { step: "4", text: "Commit and push → Vercel detects the change and auto-deploys in ~30 seconds." },
           ].map((item) => (
             <div key={item.step} className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
@@ -679,54 +625,129 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
         </div>
       </div>
 
-      {/* Config */}
+      {/* ── Export Section ── */}
       <div className="glass-card rounded-2xl p-6 space-y-5">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}><Github size={14} /> GitHub Configuration</h3>
-          {configChanged && (
-            <button onClick={saveConfig} className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors flex items-center gap-1.5">
-              <Save size={12} /> Save Config
-            </button>
-          )}
-        </div>
-        <div className="grid md:grid-cols-2 gap-5">
-          <FormGroup label="Repository Owner" hint="GitHub username or organization">
-            <Input value={draft.owner} onChange={(v) => updateDraft("owner", v)} placeholder="e.g., aurora-studio" />
-          </FormGroup>
-          <FormGroup label="Repository Name" hint="Name of the repo">
-            <Input value={draft.repo} onChange={(v) => updateDraft("repo", v)} placeholder="e.g., aurora-website" />
-          </FormGroup>
-        </div>
-        <FormGroup label="Branch" hint="Default: main">
-          <Input value={draft.branch} onChange={(v) => updateDraft("branch", v)} placeholder="main" />
-        </FormGroup>
-        <FormGroup label="Personal Access Token" hint="github.com/settings/tokens → Fine-grained → Contents: Read & Write">
-          <div className="relative">
-            <input type={showToken ? "text" : "password"} value={draft.token} onChange={(e) => updateDraft("token", e.target.value)} placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-              className="w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm font-mono transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
-              style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }} />
-            <button type="button" onClick={() => setShowToken(!showToken)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }}>
-              {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </FormGroup>
-        <div className="rounded-xl p-4 border border-amber-500/20" style={{ background: "rgba(245, 158, 11, 0.05)" }}>
-          <p className="text-xs font-medium text-amber-600 flex items-start gap-2">
-            <Shield size={14} className="flex-shrink-0 mt-0.5" />
-            <span>Your token is stored only in your browser&apos;s localStorage and sent directly to GitHub&apos;s API. Use a fine-grained token with minimal permissions (Contents: Read &amp; Write).</span>
-          </p>
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+          <Download size={14} /> Export Content
+        </h3>
+
+        <div className="space-y-3">
+          {/* Export all individual files */}
+          <button onClick={handleExportAllIndividual}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 hover:bg-[var(--bg-tertiary)] text-left group"
+            style={{ borderColor: "var(--divider)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}>
+              <FolderTree size={18} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Export All Files</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                Downloads {2 + teamMembers.length} individual .json files — place directly in your GitHub repo
+              </p>
+            </div>
+            <Download size={16} className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: "var(--text-tertiary)" }} />
+          </button>
+
+          {/* GitHub bundle */}
+          <button onClick={handleExportBundle}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 hover:bg-[var(--bg-tertiary)] text-left group"
+            style={{ borderColor: "var(--divider)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
+              <FileJson size={18} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Export as Bundle</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                Single JSON with all files keyed by path — useful for backup & re-importing
+              </p>
+            </div>
+            <Download size={16} className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: "var(--text-tertiary)" }} />
+          </button>
+
+          {/* Backup */}
+          <button onClick={handleExportBackup}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 hover:bg-[var(--bg-tertiary)] text-left group"
+            style={{ borderColor: "var(--divider)" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)" }}>
+              <Save size={18} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Export Backup</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                Flat JSON backup — easy to restore later via import
+              </p>
+            </div>
+            <Download size={16} className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: "var(--text-tertiary)" }} />
+          </button>
         </div>
       </div>
 
-      {/* Manual Backup */}
+      {/* ── Import Section ── */}
       <div className="glass-card rounded-2xl p-6 space-y-5">
-        <h3 className="text-sm font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-primary)" }}>Manual Backup</h3>
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Export/import all data as a single JSON for backup purposes.</p>
-        <div className="flex gap-3">
-          <button onClick={handleExport} className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--bg-tertiary)]"
-            style={{ borderColor: "var(--divider)", color: "var(--text-primary)" }}><Download size={16} /> Export</button>
-          <button onClick={handleImport} className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--bg-tertiary)]"
-            style={{ borderColor: "var(--divider)", color: "var(--text-primary)" }}><Upload size={16} /> Import</button>
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+          <Upload size={14} /> Import Content
+        </h3>
+        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+          Upload a JSON file to load content. Auto-detects format: bundle, backup, site settings, or individual member file.
+        </p>
+
+        <button onClick={handleImport}
+          className="w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2.5 border hover:bg-[var(--bg-tertiary)] hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
+          style={{ borderColor: "var(--divider)", color: "var(--text-primary)" }}>
+          <Upload size={16} /> Choose JSON File to Import
+        </button>
+      </div>
+
+      {/* ── File Structure with per-file download ── */}
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+          <FolderTree size={14} /> GitHub File Structure
+        </h3>
+        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+          Place these files in your GitHub repo. Click ⬇ to download any individual file.
+        </p>
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--divider)" }}>
+          {fileStructure.map((file, i) => {
+            const fileName = file.path.split("/").pop() || "";
+            const isIndex = file.path.includes("index.json");
+            return (
+              <div key={i} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 transition-colors hover:bg-[var(--bg-tertiary)]"
+                style={{ borderColor: "var(--divider)" }}>
+                <FileJson size={14} style={{ color: "var(--text-tertiary)" }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-mono font-medium truncate" style={{ color: "var(--text-primary)" }}>{file.path}</p>
+                  <p className="text-[10px] truncate" style={{ color: "var(--text-tertiary)" }}>{file.description}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (file.path === "public/data/site.json") handleExportSiteJson();
+                    else if (isIndex) handleExportIndexJson();
+                    else {
+                      const member = teamMembers.find((m) => file.path.includes(getMemberFileName(m.id)));
+                      if (member) handleExportMember(member);
+                    }
+                  }}
+                  className="p-1.5 rounded-lg transition-all duration-200 hover:bg-[var(--bg-tertiary)]"
+                  style={{ color: "var(--text-tertiary)" }}
+                  title={`Download ${fileName}`}
+                >
+                  <Download size={13} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="rounded-xl p-4 border border-blue-500/20" style={{ background: "rgba(99,102,241,0.05)" }}>
+          <p className="text-xs font-medium text-blue-600 flex items-start gap-2">
+            <FolderTree size={14} className="flex-shrink-0 mt-0.5" />
+            <span>
+              <strong>Workflow:</strong> Edit content here → Export files → Drop them into <code className="bg-blue-500/10 px-1 rounded text-[11px]">public/data/</code> in your GitHub repo → Commit & push → Vercel auto-deploys.
+            </span>
+          </p>
         </div>
       </div>
     </div>
@@ -734,7 +755,7 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
 }
 
 /* ─── Main Admin Panel ─── */
-type Tab = "site" | "team" | "deploy";
+type Tab = "site" | "team" | "export";
 
 interface AdminPanelProps { isOpen: boolean; onClose: () => void; }
 
@@ -742,7 +763,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [authed, setAuthed] = useState(() => localStorage.getItem(AUTH_KEY) === "true");
   const [activeTab, setActiveTab] = useState<Tab>("site");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const { syncStatus, syncMessage, isGitHubConfigured } = useData();
 
   const showToast = useCallback((message: string, type: "success" | "error") => { setToast({ message, type }); }, []);
 
@@ -757,7 +777,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const tabs: { id: Tab; label: string; icon: ReactNode }[] = [
     { id: "site", label: "Site", icon: <Settings size={16} /> },
     { id: "team", label: "Team", icon: <Users size={16} /> },
-    { id: "deploy", label: "GitHub", icon: <Github size={16} /> },
+    { id: "export", label: "Export", icon: <Download size={16} /> },
   ];
 
   return (
@@ -782,7 +802,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {authed && <SyncBadge status={syncStatus} message={syncMessage} isConfigured={isGitHubConfigured} />}
                 {authed && (
                   <button onClick={logout} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors hover:bg-[var(--bg-tertiary)]"
                     style={{ color: "var(--text-secondary)" }}><LogOut size={13} /> Logout</button>
@@ -807,7 +826,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
                       {activeTab === "site" && <SiteSettingsEditor onToast={showToast} />}
                       {activeTab === "team" && <TeamMembersEditor onToast={showToast} />}
-                      {activeTab === "deploy" && <DeployEditor onToast={showToast} />}
+                      {activeTab === "export" && <ExportImportEditor onToast={showToast} />}
                     </motion.div>
                   </AnimatePresence>
                 </div>
