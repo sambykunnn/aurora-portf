@@ -2,7 +2,7 @@
   "id": "sergs",
   "name": "Sergs Dimaano",
   "firstName": "Sergs",
-  "role": "3D Animation",
+  "role": "3D Animator",
   "tagline": "Bringing imagination to life in three dimensions",
   "email": "sergs@aurorastudio.com",
   "avatar": "https://scontent.fmnl13-4.fna.fbcdn.net/v/t39.30808-1/452258473_1182225286350890_7377608706933956147_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=107&ccb=1-7&_nc_sid=1d2534&_nc_eui2=AeHiZ9vCKZS6KWSHS4RWahVKYzNkcjt6l0JjM2RyO3qXQms3SJAfe94pdJTs7Xx0fAGdsBO6Z1N_WXKeOxQxiH-1&_nc_ohc=Iu0vTNiLYtEQ7kNvwGYUwMo&_nc_oc=Adl0hW-uQmPanTlwvHYsxIdSn7jPFAoyFxCUJVB6uPVXdBz7kDQ40WxbOeg9two4AZcqjbPKGrKScGxsz1VqqaQ1&_nc_zt=24&_nc_ht=scontent.fmnl13-4.fna&_nc_gid=QIJpTXgscIJ099V5v6q9Rw&oh=00_AfvA5uC2INr49XqnB9xkvuisL5X4DCU42O1d313ct35NrA&oe=698F03DF",
@@ -18,7 +18,7 @@
   "socials": [
     {
       "platform": "Behance",
-      "url": ""
+      "url": "sergsdimaano1"
     },
     {
       "platform": "Instagram",
@@ -30,8 +30,82 @@
       "id": "evpyuh7",
       "title": "3D Animation",
       "description": "",
-      "tools": [],
-      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop"
+      "tools": [
+        "Blender",
+        "After Effects",
+        "Adobe Premere"
+      ],
+      "image": "https://i.imgur.com/wEE7PRQ.png",
+      "contentBlocks": [
+        {
+          "id": "blk_6s3vqzl",
+          "type": "hero-image",
+          "image": "https://i.imgur.com/wEE7PRQ.png",
+          "heading": "3D Animation",
+          "body": ""
+        },
+        {
+          "id": "blk_qiuvcjd",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_mbrxocj",
+          "type": "text",
+          "heading": "About this project",
+          "body": "Lorem ipsum explain here how you approach this",
+          "alignment": "center"
+        },
+        {
+          "id": "blk_4qv6k3f",
+          "type": "image-full",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/921017242880667.6976c0e9f3978.png",
+          "caption": ""
+        },
+        {
+          "id": "blk_o1p96xk",
+          "type": "video",
+          "videoUrl": "https://vimeo.com/1158169895?fl=pl&fe=cm",
+          "heading": "",
+          "body": "",
+          "caption": "",
+          "autoplay": false,
+          "loop": true
+        },
+        {
+          "id": "blk_b3tfw71",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_f4ozacl",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/04e63e242880667.69765c9f5e2c0.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/8a4db8242880667.69765c9f5d750.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/b823fb242880667.69765c9f5dc1d.png",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_z2ekmoj",
+          "type": "video",
+          "videoUrl": "https://vimeo.com/1158171392?fl=pl&fe=cm",
+          "heading": "",
+          "body": "",
+          "caption": "",
+          "autoplay": true,
+          "loop": true
+        }
+      ]
     }
   ]
 }

@@ -34,12 +34,12 @@
         "Adobe Photoshop",
         "Adobe After Effects"
       ],
-      "image": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/b23e77202374603.6685095912c0c.png",
+      "image": "https://i.imgur.com/h4zobmB.png",
       "contentBlocks": [
         {
           "id": "blk_vnw74wk",
           "type": "hero-image",
-          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/b23e77202374603.6685095912c0c.png",
+          "image": "https://i.imgur.com/h4zobmB.png",
           "heading": "",
           "body": ""
         },
@@ -132,6 +132,76 @@
           "heading": "THANK YOU!",
           "body": "\nCREDITS\nCREATIVE DIRECTOR: IVERN BUALA\nART DIRECTION & DESIGN: GIAN CARLO SAMBAYAN\nMOTION DESIGN:\nLAWRENCE APALLA\nALLYSON VALDEZ\n\nETHRI- STUDIOS PRESENTS\nWITZ STREAM PACKAGE\nDESIGNS INSPIRED BY DREAMS",
           "alignment": "center"
+        }
+      ]
+    },
+    {
+      "id": "szj8g0m",
+      "title": "Charlotte Folk Series - BINI",
+      "description": "CHARLOTTE FOLK IS A POPULAR STREETWEAR BRAND IN THE PHILIPPINES. ESTABLISHED IN 2018 BY JAN CHARLOTTE VENZON. KNOWN FOR ITS MINIMALIST AND LAID-BACK DESIGNS, THE BRAND HAS GAINED ATTENTION FOR ITS HIGH-QUALITY GRAPHIC TEES. SWEATSHIRTS, AND OTHER APPAREL. CHARLOTTE FOLK IS PARTICULARLY BELOVED URBAN CREATIVES AND INFLUENCERS IN THE COUNTRY. THE BRAND FOCUSES ON CREATING STYLISH AND COMFORTABLE PIECES THAT REFLECT THE LIFESTYLE OF THE \"URBAN WHO ARE PASSIONATE ABOUT FASHION AND SELF-EXPRESSION.",
+      "tools": [
+        "Adobe Photoshop",
+        "Topaz Upscaler"
+      ],
+      "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/9a2b1b207404707.66deff4ccf22b.png",
+      "contentBlocks": [
+        {
+          "id": "blk_w0c38m3",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/9a2b1b207404707.66deff4ccf22b.png",
+          "heading": "Charlotte Folk Series - BINI",
+          "body": ""
+        },
+        {
+          "id": "blk_06ranf0",
+          "type": "text",
+          "heading": "About this project",
+          "body": "THE CHARLOTTE FOLK PH X BINI POSTER SERIES IS A CREATIVE COLLECTION FEATURING THE GROUP BINI AND THEIR POPULAR SHIPS, INCLUDING HAMBEBE , MIKHAIAH. JHOCEY, AND MACOLET. THIS SERIES ALIGNS WITH THE UPCOMING CHARLOTTE FOLK PHS REFINED DROP 02 ON SEPTEMBER 11, AVAILABLE AT CHARLOTTEFOLK.CO. EACH POSTER BLENDS ELEMENTS FROM BINIS DYNAMIC PRESENCE WITH THE DISTINCT AESTHETIC OF CHARLOTTE FOLK PH.",
+          "alignment": "center"
+        },
+        {
+          "id": "blk_k3j0ik8",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_0xss3xv",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/76df10207404707.66dd2d52ebdc0.png",
+              "caption": "Hambebe"
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/228b93207404707.66dd2d52ec728.png",
+              "caption": "MikhAiah"
+            }
+          ]
+        },
+        {
+          "id": "blk_v73o03w",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/d69927207404707.66dd2e3c7a600.png",
+              "caption": "JhoCey"
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/ca5e27207404707.66ddba00d14ee.png",
+              "caption": "MaColet"
+            }
+          ]
+        },
+        {
+          "id": "blk_jp8cyss",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_aurzjb0",
+          "type": "quote",
+          "quote": "Thank you for viewing!",
+          "author": ""
         }
       ]
     }

@@ -1,6 +1,6 @@
 {
   "id": "rica",
-  "name": "Rica Mea Hernandez",
+  "name": "Mea Hernandez",
   "firstName": "Mea",
   "role": "Modelling",
   "tagline": "Expressing art through form and presence",
@@ -32,7 +32,7 @@
       "tools": [
         "Lightroom"
       ],
-      "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/1c4f51243458737.698219b0a2137.png",
+      "image": "https://i.imgur.com/UamLmuC.jpeg",
       "contentBlocks": [
         {
           "id": "blk_x290qd7",
@@ -139,8 +139,14 @@
           ]
         },
         {
-          "id": "blk_ehyqmel",
-          "type": "image-grid-3",
+          "id": "blk_86zjyq5",
+          "type": "image-full",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/7cba81243458737.698219ae4b705.jpg",
+          "caption": ""
+        },
+        {
+          "id": "blk_2tsrhve",
+          "type": "image-grid-2",
           "images": [
             {
               "url": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/ad7b6a243458737.698219ae4bdec.jpg",
@@ -148,10 +154,6 @@
             },
             {
               "url": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/46cdab243458737.698219ae4b101.jpg",
-              "caption": ""
-            },
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/7cba81243458737.698219ae4b705.jpg",
               "caption": ""
             }
           ]
