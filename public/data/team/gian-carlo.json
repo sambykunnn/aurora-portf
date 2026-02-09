@@ -3,37 +3,15 @@
   "name": "Gian Carlo Sambayan",
   "firstName": "Gian Carlo",
   "role": "Graphic Design",
-  "tagline": "Turning ideas into visual stories",
-  "skills": ["Brand Identity", "Typography", "UI Design", "Illustration", "Print Design", "Layout Design"],
+  "tagline": "Visual storyteller crafting brands that resonate",
+  "email": "giancarlo@aurorastudio.com",
+  "avatar": "",
   "accentColor": "#6366F1",
   "accentColorRGB": "99, 102, 241",
-  "email": "gian@aurorastudio.com",
+  "skills": ["Brand Identity", "Typography", "Layout Design", "Visual Systems", "Print Design"],
   "socials": [
-    { "platform": "Behance", "url": "#" },
-    { "platform": "Dribbble", "url": "#" },
-    { "platform": "Instagram", "url": "#" }
+    { "platform": "Behance", "url": "" },
+    { "platform": "Instagram", "url": "" }
   ],
-  "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
-  "works": [
-    {
-      "id": "g1",
-      "title": "Neon Horizons",
-      "description": "Brand identity for a tech startup exploring the future of AR interfaces",
-      "tools": ["Illustrator", "Photoshop"],
-      "image": "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=400&fit=crop",
-      "contentBlocks": [
-        { "id": "g1b1", "type": "hero-image", "image": "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1400&h=700&fit=crop", "heading": "Neon Horizons", "body": "Brand Identity · AR Tech Startup" },
-        { "id": "g1b2", "type": "text", "heading": "The Challenge", "body": "Neon Horizons needed a brand identity that bridges the gap between cutting-edge AR technology and approachable, human-centered design.", "alignment": "center" },
-        { "id": "g1b3", "type": "image-grid-2", "images": [{ "url": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop", "caption": "Logo Exploration" }, { "url": "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=600&h=400&fit=crop", "caption": "Brand Mockups" }] },
-        { "id": "g1b4", "type": "text", "heading": "Design System", "body": "The visual language draws from prismatic light refractions — the way AR overlays digital information onto physical space." },
-        { "id": "g1b5", "type": "image-grid-3", "images": [{ "url": "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&h=400&fit=crop", "caption": "Business Cards" }, { "url": "https://images.unsplash.com/photo-1634942536846-e9863ef87500?w=400&h=400&fit=crop", "caption": "Packaging" }, { "url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=400&fit=crop", "caption": "Typography System" }] },
-        { "id": "g1b6", "type": "quote", "quote": "The identity perfectly captures our vision for the future of AR.", "author": "Alex Chen, CEO of Neon Horizons" }
-      ]
-    },
-    { "id": "g2", "title": "Botanical Series", "description": "Minimalist poster collection inspired by Japanese botanical art", "tools": ["Illustrator", "InDesign"], "image": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=400&fit=crop" },
-    { "id": "g3", "title": "Metro Typeface", "description": "Custom geometric sans-serif typeface designed for urban wayfinding", "tools": ["Glyphs", "Illustrator"], "image": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=400&fit=crop" },
-    { "id": "g4", "title": "Café Luna Branding", "description": "Complete visual identity for an artisan coffee brand", "tools": ["Photoshop", "Illustrator"], "image": "https://images.unsplash.com/photo-1634942536846-e9863ef87500?w=600&h=400&fit=crop" },
-    { "id": "g5", "title": "Data Viz Dashboard", "description": "UI design for a financial analytics platform with real-time data", "tools": ["Figma", "Illustrator"], "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" },
-    { "id": "g6", "title": "Annual Report 2024", "description": "Editorial design for a sustainability-focused annual report", "tools": ["InDesign", "Photoshop"], "image": "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=600&h=400&fit=crop" }
-  ]
+  "works": []
 }

@@ -103,6 +103,21 @@ const TEAM_KEY = "aurora_team_members";
 const GITHUB_KEY = "aurora_github_config";
 const DEPLOY_TIME_KEY = "aurora_last_deploy";
 const DATA_SOURCE_KEY = "aurora_data_source";
+const DATA_VERSION_KEY = "aurora_data_version";
+const CURRENT_DATA_VERSION = "2"; // Bump this to force-clear old data
+
+// Clear stale data from previous versions
+(() => {
+  try {
+    const v = localStorage.getItem(DATA_VERSION_KEY);
+    if (v !== CURRENT_DATA_VERSION) {
+      localStorage.removeItem(SITE_KEY);
+      localStorage.removeItem(TEAM_KEY);
+      localStorage.removeItem(DATA_SOURCE_KEY);
+      localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION);
+    }
+  } catch { /* ignore */ }
+})();
 
 /* ─── GitHub API helpers ─── */
 
@@ -267,7 +282,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const memberPromises = memberFileNames.map(async (fileName: string) => {
               const file = await getFileContent(config, `public/data/team/${fileName}.json`);
               if (file) {
-                return JSON.parse(file.content) as TeamMember;
+                const raw = JSON.parse(file.content);
+                // Normalize: support both shortName and firstName
+                if (!raw.firstName && raw.shortName) raw.firstName = raw.shortName;
+                if (!raw.accentColorRGB && raw.accentColor) {
+                  const hex = raw.accentColor;
+                  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                  if (result) raw.accentColorRGB = `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
+                }
+                return raw as TeamMember;
               }
               return null;
             });
@@ -308,7 +331,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
               const memberPromises = memberFileNames.map(async (fileName: string) => {
                 try {
                   const resp = await fetch(`/data/team/${fileName}.json`);
-                  if (resp.ok) return (await resp.json()) as TeamMember;
+                  if (resp.ok) {
+                    const raw = await resp.json();
+                    // Normalize
+                    if (!raw.firstName && raw.shortName) raw.firstName = raw.shortName;
+                    if (!raw.accentColorRGB && raw.accentColor) {
+                      const hex = raw.accentColor;
+                      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                      if (result) raw.accentColorRGB = `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
+                    }
+                    return raw as TeamMember;
+                  }
                 } catch { /* ignore */ }
                 return null;
               });

@@ -3,36 +3,15 @@
   "name": "Erin Margarette Pasamba",
   "firstName": "Erin",
   "role": "Photography",
-  "tagline": "Capturing moments, creating memories",
-  "skills": ["Portrait", "Landscape", "Product Photography", "Photo Editing", "Lighting", "Composition"],
+  "tagline": "Capturing moments that tell timeless stories",
+  "email": "erin@aurorastudio.com",
+  "avatar": "",
   "accentColor": "#8B5CF6",
   "accentColorRGB": "139, 92, 246",
-  "email": "erin@aurorastudio.com",
+  "skills": ["Portrait Photography", "Event Photography", "Photo Editing", "Composition", "Lighting"],
   "socials": [
-    { "platform": "Instagram", "url": "#" },
-    { "platform": "500px", "url": "#" },
-    { "platform": "Behance", "url": "#" }
+    { "platform": "Instagram", "url": "" },
+    { "platform": "Behance", "url": "" }
   ],
-  "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=face",
-  "works": [
-    {
-      "id": "e1",
-      "title": "Urban Solitude",
-      "description": "Street photography series exploring isolation in crowded Asian cities",
-      "tools": ["Lightroom", "Photoshop"],
-      "image": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop",
-      "contentBlocks": [
-        { "id": "e1b1", "type": "hero-image", "image": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1400&h=700&fit=crop", "heading": "Urban Solitude", "body": "Street Photography · Asian Cities" },
-        { "id": "e1b2", "type": "text", "heading": "Artist Statement", "body": "Urban Solitude examines the paradox of loneliness in the world's most densely populated cities.", "alignment": "center" },
-        { "id": "e1b3", "type": "image-grid-3", "images": [{ "url": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=500&fit=crop", "caption": "Crossing" }, { "url": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=400&h=500&fit=crop", "caption": "Neon Dreams" }, { "url": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=500&fit=crop", "caption": "Overpass" }] },
-        { "id": "e1b4", "type": "image-grid-2", "images": [{ "url": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&h=400&fit=crop", "caption": "Reflection I" }, { "url": "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&h=400&fit=crop", "caption": "Reflection II" }] },
-        { "id": "e1b5", "type": "quote", "quote": "In the crowd, we find our most private moments.", "author": "Erin Margarette Pasamba" }
-      ]
-    },
-    { "id": "e2", "title": "Porcelain", "description": "Fine art portrait series with minimalist styling and soft lighting", "tools": ["Capture One", "Photoshop"], "image": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&h=400&fit=crop" },
-    { "id": "e3", "title": "Made by Hand", "description": "Documentary photography of traditional Filipino artisan craftspeople", "tools": ["Lightroom", "Bridge"], "image": "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&h=400&fit=crop" },
-    { "id": "e4", "title": "Brand Essentials", "description": "Product flat-lay photography for lifestyle and beauty brands", "tools": ["Capture One", "Photoshop"], "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop" },
-    { "id": "e5", "title": "After Dark", "description": "Neon-lit night photography showcasing city nightlife culture", "tools": ["Lightroom", "Photoshop"], "image": "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&h=400&fit=crop" },
-    { "id": "e6", "title": "Seasons Turn", "description": "Landscape series documenting seasonal changes across Philippine provinces", "tools": ["Lightroom", "Nik Collection"], "image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop" }
-  ]
+  "works": []
 }

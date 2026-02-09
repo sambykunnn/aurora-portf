@@ -1,38 +1,17 @@
 {
   "id": "lorie",
   "name": "Lorie Jane Levita",
-  "firstName": "Lorie Jane",
+  "firstName": "Lorie",
   "role": "Short/Long Form Videos",
-  "tagline": "Crafting narratives frame by frame",
-  "skills": ["Video Editing", "Color Grading", "Storytelling", "Sound Design", "Cinematography", "Motion Graphics"],
+  "tagline": "Cinematic narratives that captivate audiences",
+  "email": "lorie@aurorastudio.com",
+  "avatar": "",
   "accentColor": "#F59E0B",
   "accentColorRGB": "245, 158, 11",
-  "email": "lorie@aurorastudio.com",
+  "skills": ["Video Editing", "Color Grading", "Storytelling", "Sound Design", "Cinematography"],
   "socials": [
-    { "platform": "YouTube", "url": "#" },
-    { "platform": "Vimeo", "url": "#" },
-    { "platform": "Instagram", "url": "#" }
+    { "platform": "YouTube", "url": "" },
+    { "platform": "Instagram", "url": "" }
   ],
-  "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
-  "works": [
-    {
-      "id": "l1",
-      "title": "Golden Hour",
-      "description": "Documentary short capturing the magic of Manila's sunset communities",
-      "tools": ["Premiere Pro", "DaVinci"],
-      "image": "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=400&fit=crop",
-      "contentBlocks": [
-        { "id": "l1b1", "type": "hero-image", "image": "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=1400&h=700&fit=crop", "heading": "Golden Hour", "body": "Documentary Short · Manila Sunset Communities" },
-        { "id": "l1b2", "type": "text", "heading": "Synopsis", "body": "Every evening, as the sun dips below Manila Bay, a transformation takes place.", "alignment": "center" },
-        { "id": "l1b3", "type": "image-grid-3", "images": [{ "url": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&h=300&fit=crop", "caption": "The Waterfront" }, { "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop", "caption": "Coastal Life" }, { "url": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=300&fit=crop", "caption": "Reflections" }] },
-        { "id": "l1b4", "type": "image-text", "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=400&fit=crop", "heading": "Behind the Camera", "body": "Shot over 14 evenings across three months, the film uses only natural light.", "textSide": "right" },
-        { "id": "l1b5", "type": "quote", "quote": "Golden hour is when the city finally breathes.", "author": "Mang Tonyo, Manila Bay Fisherman" }
-      ]
-    },
-    { "id": "l2", "title": "Street Rhythms", "description": "Music video featuring underground artists and urban choreography", "tools": ["Final Cut", "After Effects"], "image": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&h=400&fit=crop" },
-    { "id": "l3", "title": "Taste of Home", "description": "Food documentary series exploring regional Filipino cuisine traditions", "tools": ["Premiere Pro", "Audition"], "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop" },
-    { "id": "l4", "title": "Tech Forward", "description": "Corporate brand film for a leading Southeast Asian tech company", "tools": ["DaVinci Resolve", "After Effects"], "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=400&fit=crop" },
-    { "id": "l5", "title": "Waves", "description": "Experimental short film blending underwater footage with digital art", "tools": ["Premiere Pro", "Nuke"], "image": "https://images.unsplash.com/photo-1551076805-e1869033e561?w=600&h=400&fit=crop" },
-    { "id": "l6", "title": "Campus Stories", "description": "Social media content series for university recruitment campaigns", "tools": ["Final Cut", "Motion"], "image": "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=600&h=400&fit=crop" }
-  ]
+  "works": []
 }
