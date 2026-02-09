@@ -9,57 +9,37 @@ interface ProjectViewProps {
   onBack: () => void;
 }
 
-/* ─── Image with Zoom/Position ─── */
-
-interface GridImageProps {
-  src: string;
-  alt?: string;
-  zoom?: number;
-  objectX?: number;
-  objectY?: number;
-  aspectRatio?: string;
-}
-
-function GridImage({ src, alt, zoom = 100, objectX = 50, objectY = 50, aspectRatio = "4/3" }: GridImageProps) {
-  if (!src) return null;
-  return (
-    <div className="overflow-hidden w-full" style={{ aspectRatio }}>
-      <img
-        src={src}
-        alt={alt || ""}
-        className="w-full h-full object-cover"
-        style={{
-          transform: `scale(${zoom / 100})`,
-          transformOrigin: `${objectX}% ${objectY}%`,
-          objectPosition: `${objectX}% ${objectY}%`,
-        }}
-        loading="lazy"
-      />
-    </div>
-  );
-}
-
 /* ─── Video URL Parser ─── */
 
 function parseVideoUrl(url: string): { type: "youtube" | "vimeo" | "direct"; embedUrl: string } | null {
   if (!url) return null;
+
+  // YouTube
   const ytMatch = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   );
   if (ytMatch) {
     return { type: "youtube", embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0` };
   }
+
+  // Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
   if (vimeoMatch) {
     return { type: "vimeo", embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
   }
+
+  // Google Drive
   const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
   if (driveMatch) {
     return { type: "direct", embedUrl: `https://drive.google.com/file/d/${driveMatch[1]}/preview` };
   }
+
+  // Direct video URL (.mp4, .webm, .mov, .ogg)
   if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) {
     return { type: "direct", embedUrl: url };
   }
+
+  // Fallback: try as iframe embed
   return { type: "direct", embedUrl: url };
 }
 
@@ -82,6 +62,7 @@ function VideoEmbed({ url, caption, autoplay, loop }: { url: string; caption?: s
       if (loop) params.set("loop", "1");
       embedSrc = `${parsed.embedUrl}?${params.toString()}`;
     }
+
     return (
       <div>
         <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
@@ -102,6 +83,7 @@ function VideoEmbed({ url, caption, autoplay, loop }: { url: string; caption?: s
     );
   }
 
+  // Google Drive embed
   if (url.includes("drive.google.com")) {
     return (
       <div>
@@ -123,6 +105,7 @@ function VideoEmbed({ url, caption, autoplay, loop }: { url: string; caption?: s
     );
   }
 
+  // Direct video file
   return (
     <div>
       <video
@@ -146,7 +129,7 @@ function VideoEmbed({ url, caption, autoplay, loop }: { url: string; caption?: s
   );
 }
 
-/* ─── Block Renderers ─── */
+/* ─── Block Renderers (no rounded corners, full-scale images, no lightbox) ─── */
 
 function HeroImageBlock({ block }: { block: ContentBlock }) {
   return (
@@ -248,102 +231,93 @@ function ImageFullBlock({ block, index }: { block: ContentBlock; index: number }
 
 function ImageGrid2Block({ block, index }: { block: ContentBlock; index: number }) {
   const images = block.images || [];
-  const gapPx = block.gap ?? 4;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: index * 0.05 }}
-      className="py-2"
+      className="grid grid-cols-1 sm:grid-cols-2 gap-1 py-2"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: `${gapPx}px` }}>
-        {images.map((img, i) => (
-          <div key={i}>
-            <GridImage
-              src={img.url}
-              alt={img.caption}
-              zoom={img.zoom}
-              objectX={img.objectX}
-              objectY={img.objectY}
-              aspectRatio="4/3"
-            />
-            {img.caption && (
-              <p className="text-xs font-medium text-center mt-2" style={{ color: "var(--text-tertiary)" }}>
-                {img.caption}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+      {images.map((img, i) => (
+        <div key={i}>
+          <img
+            src={img.url}
+            alt={img.caption || ""}
+            className="w-full h-auto"
+            loading="lazy"
+          />
+          {img.caption && (
+            <p
+              className="text-xs font-medium text-center mt-2"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {img.caption}
+            </p>
+          )}
+        </div>
+      ))}
     </motion.div>
   );
 }
 
 function ImageGrid3Block({ block, index }: { block: ContentBlock; index: number }) {
   const images = block.images || [];
-  const gapPx = block.gap ?? 4;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: index * 0.05 }}
-      className="py-2"
+      className="grid grid-cols-1 sm:grid-cols-3 gap-1 py-2"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: `${gapPx}px` }}>
-        {images.map((img, i) => (
-          <div key={i}>
-            <GridImage
-              src={img.url}
-              alt={img.caption}
-              zoom={img.zoom}
-              objectX={img.objectX}
-              objectY={img.objectY}
-              aspectRatio="4/3"
-            />
-            {img.caption && (
-              <p className="text-xs font-medium text-center mt-2" style={{ color: "var(--text-tertiary)" }}>
-                {img.caption}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+      {images.map((img, i) => (
+        <div key={i}>
+          <img
+            src={img.url}
+            alt={img.caption || ""}
+            className="w-full h-auto"
+            loading="lazy"
+          />
+          {img.caption && (
+            <p
+              className="text-xs font-medium text-center mt-2"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {img.caption}
+            </p>
+          )}
+        </div>
+      ))}
     </motion.div>
   );
 }
 
 function ImageGrid6Block({ block, index }: { block: ContentBlock; index: number }) {
   const images = block.images || [];
-  const gapPx = block.gap ?? 4;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: index * 0.05 }}
-      className="py-2"
+      className="grid grid-cols-2 sm:grid-cols-3 gap-1 py-2"
     >
-      <div className="grid grid-cols-2 sm:grid-cols-3" style={{ gap: `${gapPx}px` }}>
-        {images.map((img, i) => (
-          <div key={i}>
-            <GridImage
-              src={img.url}
-              alt={img.caption}
-              zoom={img.zoom}
-              objectX={img.objectX}
-              objectY={img.objectY}
-              aspectRatio="1/1"
-            />
-            {img.caption && (
-              <p className="text-[11px] font-medium text-center mt-1.5" style={{ color: "var(--text-tertiary)" }}>
-                {img.caption}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+      {images.map((img, i) => (
+        <div key={i}>
+          <img
+            src={img.url}
+            alt={img.caption || ""}
+            className="w-full h-auto"
+            loading="lazy"
+          />
+          {img.caption && (
+            <p
+              className="text-[11px] font-medium text-center mt-1.5"
+              style={{ color: "var(--text-tertiary)" }}
+            >
+              {img.caption}
+            </p>
+          )}
+        </div>
+      ))}
     </motion.div>
   );
 }
@@ -454,8 +428,6 @@ function SpacerBlock({ block }: { block: ContentBlock }) {
 
 function GalleryBlock({ block, index }: { block: ContentBlock; index: number }) {
   const images = block.images || [];
-  const gapPx = block.gap ?? 4;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -463,29 +435,15 @@ function GalleryBlock({ block, index }: { block: ContentBlock; index: number }) 
       transition={{ duration: 0.7, delay: index * 0.05 }}
       className="py-2"
     >
-      <div
-        className="columns-2 md:columns-3"
-        style={{ gap: `${gapPx}px` }}
-      >
+      <div className="columns-2 md:columns-3 gap-1 space-y-1">
         {images.map((img, i) => (
-          <div key={i} className="break-inside-avoid" style={{ marginBottom: `${gapPx}px` }}>
-            {img.zoom && img.zoom > 100 ? (
-              <GridImage
-                src={img.url}
-                alt={img.caption}
-                zoom={img.zoom}
-                objectX={img.objectX}
-                objectY={img.objectY}
-                aspectRatio="auto"
-              />
-            ) : (
-              <img
-                src={img.url}
-                alt={img.caption || ""}
-                className="w-full h-auto"
-                loading="lazy"
-              />
-            )}
+          <div key={i} className="break-inside-avoid">
+            <img
+              src={img.url}
+              alt={img.caption || ""}
+              className="w-full h-auto"
+              loading="lazy"
+            />
             {img.caption && (
               <p
                 className="text-xs mt-1.5 font-medium"
@@ -542,7 +500,6 @@ function VideoBlock({ block, index }: { block: ContentBlock; index: number }) {
 function VideoGridBlock({ block, index }: { block: ContentBlock; index: number }) {
   const videos = block.videos || [];
   const cols = videos.length <= 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
-  const gapPx = block.gap ?? 8;
 
   return (
     <motion.div
@@ -559,7 +516,7 @@ function VideoGridBlock({ block, index }: { block: ContentBlock; index: number }
           {block.heading}
         </h3>
       )}
-      <div className={`grid grid-cols-1 ${cols}`} style={{ gap: `${gapPx}px` }}>
+      <div className={`grid grid-cols-1 ${cols} gap-1`}>
         {videos.map((vid, i) => (
           <div key={i}>
             <VideoEmbed url={vid.url} caption={vid.caption} />
@@ -611,7 +568,7 @@ function BlockRenderer({
   }
 }
 
-/* ─── Auto Layout ─── */
+/* ─── Auto Layout (for works without content blocks) ─── */
 
 function AutoLayout({
   work,
@@ -714,6 +671,7 @@ export function ProjectView({ work, member, onBack }: ProjectViewProps) {
 
       {/* Content */}
       <div className="max-w-5xl mx-auto px-0 md:px-0 py-6 md:py-10 space-y-1">
+        {/* Project title (only shown if no hero block) */}
         {hasBlocks && blocks[0]?.type !== "hero-image" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -736,6 +694,7 @@ export function ProjectView({ work, member, onBack }: ProjectViewProps) {
           </motion.div>
         )}
 
+        {/* Render blocks or auto layout */}
         {hasBlocks ? (
           blocks.map((block, i) => (
             <BlockRenderer
@@ -791,6 +750,7 @@ export function ProjectView({ work, member, onBack }: ProjectViewProps) {
             ))}
           </div>
 
+          {/* Project info */}
           <div className="mt-8 pt-6 border-t" style={{ borderColor: "var(--divider)" }}>
             <p
               className="text-sm font-medium"
