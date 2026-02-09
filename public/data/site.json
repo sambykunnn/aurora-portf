@@ -6,7 +6,13 @@
   "contactEmail": "hello@aurorastudio.com",
   "contactHeading": "Let's Create",
   "contactDescription": "Have a project in mind? We'd love to hear from you.",
-  "disciplines": ["Design", "3D", "Video", "Modelling", "Photo"],
+  "disciplines": [
+    "Design",
+    "3D",
+    "Video",
+    "Modelling",
+    "Photo"
+  ],
   "teamSectionTitle": "Meet the Team",
   "teamSectionSubtitle": "The Collective",
   "teamSectionDescription": "Five creatives, each mastering their craft.",
