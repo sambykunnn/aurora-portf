@@ -29,7 +29,7 @@
     {
       "id": "evpyuh7",
       "title": "3D Animation",
-      "description": "",
+      "description": "A Cinematic Study of Style & Motion 3D Generalist \n",
       "tools": [
         "Blender",
         "After Effects",
@@ -52,8 +52,8 @@
         {
           "id": "blk_mbrxocj",
           "type": "text",
-          "heading": "About this project",
-          "body": "Lorem ipsum explain here how you approach this",
+          "heading": "A Cinematic Study of Style & Motion 3D Generalist | Character Artist | Motion Designer",
+          "body": "The Essence A high-fidelity exploration of modern Korean digital aesthetics. This project focuses on the delicate balance between stylized character design and cinematic realism, bringing a unique virtual persona to life through fluid motion and advanced shading.\n",
           "alignment": "center"
         },
         {
@@ -109,6 +109,13 @@
           "id": "blk_3btv4yb",
           "type": "spacer",
           "size": "md"
+        },
+        {
+          "id": "blk_7pbhhxu",
+          "type": "text",
+          "heading": "3D DYNAMIC ENVIRONMENT / LIGHTING",
+          "body": "This project serves as a technical exploration of dynamic global illumination and atmospheric storytelling. The goal was to demonstrate how a single static environment can be completely transformed through varying lighting conditions, post-process adjustments, and real-time rendering techniques in blender.\n",
+          "alignment": "center"
         },
         {
           "id": "blk_0cgegpk",
@@ -207,6 +214,13 @@
           "size": "md"
         },
         {
+          "id": "blk_r2nm27g",
+          "type": "text",
+          "heading": "STARWARS ENVIRONTMENT 3D INSPIRED",
+          "body": "Building upon the foundations of static environmental storytelling, this project focuses on the fluidity of world-building. This animation study transitions from lighting exploration into full-scale motion design, emphasizing how environmental elements foliage, atmosphere, and camera movement work in harmony to create a 2D-3D cinematic experience.\n",
+          "alignment": "center"
+        },
+        {
           "id": "blk_wd8vm3e",
           "type": "image-full",
           "image": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/622a84243014085.6978f8059fdc6.png",
@@ -264,6 +278,13 @@
           "id": "blk_c1ersrg",
           "type": "spacer",
           "size": "md"
+        },
+        {
+          "id": "blk_678cnsr",
+          "type": "text",
+          "heading": "3D ANIME VIBE OCEAN",
+          "body": "This project is a dedicated study of fluid dynamics and rhythmic motion, focusing on the anime recreation of ocean waves. It serves as a technical showcase of how procedural displacement can be used to simulate the complex, overlapping patterns of water surfaces in a 3D environment.\n",
+          "alignment": "center"
         },
         {
           "id": "blk_k2sl08b",
