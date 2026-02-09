@@ -37,23 +37,75 @@
       "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop",
       "contentBlocks": [
         {
-          "id": "blk_lxs4i4u",
+          "id": "blk_flxjycq",
+          "type": "hero-image",
+          "image": "",
+          "heading": "Short / Long Form Videos",
+          "body": ""
+        },
+        {
+          "id": "blk_7fmtoz6",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_bpew6mf",
+          "type": "text",
+          "heading": "Long Form Videos",
+          "body": "This edit transforms long-form footage into an engaging visual journey using custom motion graphics to maintain a steady rhythm and flow. Every animated element acts as a visual anchor, highlighting key information to keep the audience focused and interested throughout the entire video. The result is a polished, high-retention experience that feels energetic from start to finish.",
+          "alignment": "center"
+        },
+        {
+          "id": "blk_5e30lks",
           "type": "video-grid",
           "heading": "",
           "videos": [
             {
-              "url": "https://www.youtube.com/shorts/StswIc7b8X0",
+              "url": "https://drive.google.com/file/d/13wdqMLnIZIUYgHQsFX6Bwam3ZTUUIKMx/view?usp=sharing",
               "caption": ""
             },
             {
-              "url": "https://www.youtube.com/shorts/YZxkC2-6gsA?feature=share",
-              "caption": ""
-            },
-            {
-              "url": "https://www.youtube.com/shorts/lhfoSDsrwbM?feature=share",
+              "url": "https://drive.google.com/file/d/1F73LCqL4a-KsJKNxD133ew_-0y5Qjtsj/view?usp=drive_link",
               "caption": ""
             }
           ]
+        },
+        {
+          "id": "blk_4kqapic",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_rximptv",
+          "type": "text",
+          "heading": "Short Form Videos (Reels",
+          "body": "Designed to stop the scroll, these edits use punchy animations and fast-paced motion graphics to pack maximum energy into every second. Whether it’s a sleek product advertisement with custom-animated elements or a quick informative clip, the visuals are timed perfectly to demand attention. Each reel is engineered to be vibrant and easy to watch, ensuring the message sticks even in a short amount of time.\n",
+          "alignment": "center"
+        },
+        {
+          "id": "blk_vld55jw",
+          "type": "video-grid",
+          "heading": "",
+          "videos": [
+            {
+              "url": "https://drive.google.com/file/d/1lGnYfJdc_rzE69DsLMG_MuiZW_uYxtpr/view?usp=drive_link",
+              "caption": ""
+            },
+            {
+              "url": "https://drive.google.com/file/d/1Ewi1pBdvDz-3vEXwDZp0XVym43dXWWQi/view?usp=drive_link",
+              "caption": ""
+            },
+            {
+              "url": "https://drive.google.com/file/d/1XtS7HAlgAAbh5ClfM_f_bMTfxoOrOwUk/view?usp=drive_link",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_gqcgr7c",
+          "type": "quote",
+          "quote": "Thank you for viewing!",
+          "author": ""
         }
       ]
     }
