@@ -16,7 +16,7 @@ export interface ContentBlock {
   id: string;
   type: BlockType;
   image?: string;
-  images?: { url: string; caption?: string }[];
+  images?: { url: string; caption?: string; zoom?: number; objectX?: number; objectY?: number }[];
   heading?: string;
   body?: string;
   caption?: string;
@@ -29,6 +29,7 @@ export interface ContentBlock {
   videos?: { url: string; caption?: string }[];
   autoplay?: boolean;
   loop?: boolean;
+  gap?: number;
 }
 
 export interface WorkItem {

@@ -83,10 +83,18 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #6366f1, #ec4899, #f59e0b);
+  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f59e0b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.aurora-gradient {
+  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f59e0b);
+}
+
+.aurora-glow {
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.3), 0 0 80px rgba(236, 72, 153, 0.2);
 }
 
 @keyframes shimmer {

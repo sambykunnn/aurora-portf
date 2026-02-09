@@ -20,6 +20,9 @@ export function Navbar({ isDark, toggleTheme }: NavbarProps) {
   }, []);
 
   const navLinks = [
+    { label: "Home", href: "#home" },
+    { label: "About", href: "#about" },
+    { label: "Behind the Build", href: "#behind" },
     { label: "Works", href: "#works" },
     { label: "Team", href: "#team" },
     { label: "Contact", href: "#contact" },
@@ -47,13 +50,10 @@ export function Navbar({ isDark, toggleTheme }: NavbarProps) {
           }`}
         >
           <button onClick={() => scrollTo("#hero")} className="flex items-center gap-2 group">
-            <span
-              className="text-xl font-bold tracking-tight transition-colors"
-              style={{ color: "var(--text-primary)" }}
-            >
+            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">
               {siteContent.studioName}
             </span>
-            <span className="text-gradient text-[10px] font-semibold uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100 transition-opacity">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 opacity-60 group-hover:opacity-100 transition-opacity">
               Studio
             </span>
           </button>

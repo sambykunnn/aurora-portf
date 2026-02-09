@@ -1,60 +1,35 @@
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { Settings } from "lucide-react";
-import { useData } from "@/context/DataContext";
+import { Settings } from 'lucide-react';
 
 interface FooterProps {
   onAdminClick: () => void;
 }
 
-export function Footer({ onAdminClick }: FooterProps) {
-  const { siteContent } = useData();
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
-
+export default function Footer({ onAdminClick }: FooterProps) {
   return (
-    <footer
-      ref={ref}
-      className="py-12 px-6 border-t"
-      style={{
-        background: "var(--bg-secondary)",
-        borderColor: "var(--divider)",
-      }}
-    >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : {}}
-        transition={{ duration: 0.8 }}
-        className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"
-      >
+    <footer className="py-12 px-6 border-t border-gray-200/50 dark:border-white/10">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <span
-            className="text-lg font-bold tracking-tight"
-            style={{ color: "var(--text-primary)" }}
-          >
-            {siteContent.studioName}
+          <span className="text-xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">
+            AURORA
           </span>
-          <span className="text-gradient text-[10px] font-semibold uppercase tracking-[0.2em]">
-            Studio
+          <span className="text-gray-500 dark:text-gray-500">
+            Multimedia Studio
           </span>
         </div>
+        
         <div className="flex items-center gap-4">
-          <p
-            className="text-sm"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            © {new Date().getFullYear()} {siteContent.studioName} Creative Studio. All rights reserved.
+          <p className="text-sm text-gray-500 dark:text-gray-500">
+            © 2026 — All works by the Aurora creatives.
           </p>
           <button
             onClick={onAdminClick}
-            className="p-2 rounded-xl transition-all duration-300 hover:bg-[var(--bg-tertiary)] opacity-30 hover:opacity-100"
-            style={{ color: "var(--text-tertiary)" }}
+            className="p-2 rounded-lg opacity-30 hover:opacity-100 transition-opacity"
             title="Admin Panel"
           >
-            <Settings size={14} />
+            <Settings className="w-4 h-4 text-gray-500" />
           </button>
         </div>
-      </motion.div>
+      </div>
     </footer>
   );
 }

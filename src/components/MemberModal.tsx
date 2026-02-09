@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, ExternalLink } from "lucide-react";
+import { X, Mail, ExternalLink, FolderOpen, User } from "lucide-react";
 import type { TeamMember } from "@/data/teamData";
 import { GalleryCard } from "./GalleryCard";
 import { ProjectView } from "./ProjectView";
@@ -12,8 +12,11 @@ interface MemberModalProps {
   initialWorkIndex?: number;
 }
 
+type ModalTab = "portfolio" | "about";
+
 export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: MemberModalProps) {
   const [activeWorkIndex, setActiveWorkIndex] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<ModalTab>("portfolio");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Lock body scroll when modal is open
@@ -54,15 +57,16 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
   useEffect(() => {
     if (!isOpen) {
       setActiveWorkIndex(null);
+      setActiveTab("portfolio");
     }
   }, [isOpen]);
 
-  // Scroll to top when switching views
+  // Scroll to top when switching views or tabs
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [activeWorkIndex]);
+  }, [activeWorkIndex, activeTab]);
 
   const handleBack = () => {
     setActiveWorkIndex(null);
@@ -97,7 +101,7 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
             transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="fixed inset-0 md:inset-4 lg:inset-8 z-[70] modal-glass rounded-none md:rounded-3xl overflow-hidden flex flex-col"
           >
-            {/* Header — only show when in gallery view */}
+            {/* Header — only show when in gallery/about view (not project view) */}
             <AnimatePresence>
               {activeWorkIndex === null && (
                 <motion.div
@@ -105,39 +109,93 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
-                  className="flex-shrink-0 flex items-center justify-between px-6 md:px-10 py-5 border-b"
-                  style={{ borderColor: "var(--divider)" }}
+                  className="flex-shrink-0"
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="w-10 h-10 rounded-xl overflow-hidden"
-                      style={{ boxShadow: `0 0 0 2px ${member.accentColor}` }}
-                    >
-                      <img
-                        src={member.avatar}
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3
-                        className="text-base font-semibold"
-                        style={{ color: "var(--text-primary)" }}
-                      >
-                        {member.name}
-                      </h3>
-                      <p className="text-sm font-medium" style={{ color: member.accentColor }}>
-                        {member.role}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={onClose}
-                    className="p-2.5 rounded-xl transition-colors hover:bg-[var(--bg-tertiary)]"
-                    style={{ color: "var(--text-secondary)" }}
+                  {/* Top bar with member info */}
+                  <div
+                    className="flex items-center justify-between px-6 md:px-10 py-5"
+                    style={{ borderBottom: "1px solid var(--divider)" }}
                   >
-                    <X size={20} />
-                  </button>
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-10 h-10 rounded-xl overflow-hidden"
+                        style={{ boxShadow: `0 0 0 2px ${member.accentColor}` }}
+                      >
+                        {member.avatar ? (
+                          <img
+                            src={member.avatar}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center text-white font-bold text-sm"
+                            style={{ background: member.accentColor }}
+                          >
+                            {member.firstName.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h3
+                          className="text-base font-semibold"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          {member.name}
+                        </h3>
+                        <p className="text-sm font-medium" style={{ color: member.accentColor }}>
+                          {member.role}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={onClose}
+                      className="p-2.5 rounded-xl transition-colors hover:bg-[var(--bg-tertiary)]"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  {/* Tab bar */}
+                  <div
+                    className="flex px-6 md:px-10 gap-1"
+                    style={{ borderBottom: "1px solid var(--divider)" }}
+                  >
+                    <button
+                      onClick={() => setActiveTab("portfolio")}
+                      className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px"
+                      style={{
+                        borderColor: activeTab === "portfolio" ? member.accentColor : "transparent",
+                        color: activeTab === "portfolio" ? "var(--text-primary)" : "var(--text-tertiary)",
+                      }}
+                    >
+                      <FolderOpen size={15} />
+                      Portfolio
+                      {member.works.length > 0 && (
+                        <span
+                          className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            background: activeTab === "portfolio" ? `${member.accentColor}15` : "var(--bg-tertiary)",
+                            color: activeTab === "portfolio" ? member.accentColor : "var(--text-tertiary)",
+                          }}
+                        >
+                          {member.works.length}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("about")}
+                      className="flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px"
+                      style={{
+                        borderColor: activeTab === "about" ? member.accentColor : "transparent",
+                        color: activeTab === "about" ? "var(--text-primary)" : "var(--text-tertiary)",
+                      }}
+                    >
+                      <User size={15} />
+                      About
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -171,17 +229,61 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
                       onBack={handleBack}
                     />
                   </motion.div>
-                ) : (
+                ) : activeTab === "portfolio" ? (
                   <motion.div
-                    key="gallery-view"
-                    initial={{ opacity: 0, x: -100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 100 }}
-                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    key="portfolio-view"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-12">
-                      {/* Bio section */}
-                      <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-12 md:mb-16">
+                      {member.works.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                          {member.works.map((work, idx) => (
+                            <GalleryCard
+                              key={work.id}
+                              work={work}
+                              accentColor={member.accentColor}
+                              index={idx}
+                              onViewProject={() => setActiveWorkIndex(idx)}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-20">
+                          <FolderOpen
+                            size={48}
+                            className="mb-4 opacity-20"
+                            style={{ color: "var(--text-tertiary)" }}
+                          />
+                          <p
+                            className="text-lg font-semibold mb-1"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            No works yet
+                          </p>
+                          <p
+                            className="text-sm"
+                            style={{ color: "var(--text-tertiary)" }}
+                          >
+                            Works will appear here once added via the admin panel.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="about-view"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-12">
+                      <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+                        {/* Bio */}
                         <div className="md:col-span-2">
                           <p
                             className="text-2xl md:text-3xl lg:text-4xl font-light leading-relaxed"
@@ -205,7 +307,8 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
                           </div>
                         </div>
 
-                        <div className="space-y-4">
+                        {/* Contact & Socials */}
+                        <div className="space-y-6">
                           <div>
                             <p
                               className="text-xs font-semibold uppercase tracking-[0.15em] mb-2"
@@ -235,6 +338,8 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
                                 <a
                                   key={social.platform}
                                   href={social.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                   className="flex items-center gap-2 text-sm font-medium transition-colors hover:opacity-80"
                                   style={{ color: "var(--text-primary)" }}
                                 >
@@ -244,40 +349,6 @@ export function MemberModal({ member, isOpen, onClose, initialWorkIndex }: Membe
                               ))}
                             </div>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Gallery */}
-                      <div>
-                        <div className="flex items-center gap-3 mb-8">
-                          <div
-                            className="w-1 h-6 rounded-full"
-                            style={{ background: member.accentColor }}
-                          />
-                          <h4
-                            className="text-xl font-semibold"
-                            style={{ color: "var(--text-primary)" }}
-                          >
-                            Portfolio
-                          </h4>
-                          <span
-                            className="text-sm font-medium"
-                            style={{ color: "var(--text-tertiary)" }}
-                          >
-                            {member.works.length} works
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                          {member.works.map((work, idx) => (
-                            <GalleryCard
-                              key={work.id}
-                              work={work}
-                              accentColor={member.accentColor}
-                              index={idx}
-                              onViewProject={() => setActiveWorkIndex(idx)}
-                            />
-                          ))}
                         </div>
                       </div>
                     </div>

@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import type { TeamMember } from "@/data/teamData";
-import { DataProvider } from "@/context/DataContext";
+import { DataProvider, useData } from "@/context/DataContext";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Navbar } from "@/components/Navbar";
-import { Hero } from "@/components/Hero";
+import Hero from "@/components/Hero";
+import AboutUs from "@/components/AboutUs";
+import BehindTheBuild from "@/components/BehindTheBuild";
 import { SelectedWorksStrip } from "@/components/SelectedWorksStrip";
-import { TeamGrid } from "@/components/TeamGrid";
+import TeamGrid from "@/components/TeamGrid";
 import { MemberModal } from "@/components/MemberModal";
-import { ContactSection } from "@/components/ContactSection";
-import { Footer } from "@/components/Footer";
+import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 
 function AppContent() {
+  const { teamMembers } = useData();
   const [isLoading, setIsLoading] = useState(true);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
@@ -70,6 +73,16 @@ function AppContent() {
     [openMemberModal]
   );
 
+  const handleMemberClick = useCallback(
+    (memberId: string) => {
+      const member = teamMembers.find((m) => m.id === memberId);
+      if (member) {
+        openMemberModal(member, 0);
+      }
+    },
+    [teamMembers, openMemberModal]
+  );
+
   return (
     <div
       className="min-h-screen transition-colors duration-500"
@@ -78,8 +91,10 @@ function AppContent() {
       <LoadingScreen isLoading={isLoading} />
       <Navbar isDark={isDark} toggleTheme={toggleTheme} />
       <Hero />
+      <AboutUs />
+      <BehindTheBuild />
       <SelectedWorksStrip onWorkClick={handleWorkClick} />
-      <TeamGrid onMemberClick={openMemberModal} />
+      <TeamGrid onMemberClick={handleMemberClick} />
       <ContactSection />
       <Footer onAdminClick={() => setAdminOpen(true)} />
       <MemberModal

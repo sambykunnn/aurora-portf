@@ -1,21 +1,42 @@
 {
-  "studioName": "Aurora",
-  "studioTagline": "Creative Multimedia Studio",
-  "heroSubtitle": "We design, animate, capture, and create.",
-  "heroDescription": "Five creatives. One vision.",
-  "contactEmail": "hello@aurorastudio.com",
-  "contactHeading": "Let's Create",
-  "contactDescription": "Have a project in mind? We'd love to hear from you.",
-  "disciplines": [
-    "Design",
-    "3D",
-    "Video",
-    "Modelling",
-    "Photo"
-  ],
-  "teamSectionTitle": "Meet the Team",
-  "teamSectionSubtitle": "The Collective",
-  "teamSectionDescription": "Five creatives, each mastering their craft.",
-  "worksSectionTitle": "Selected Works",
-  "worksSectionSubtitle": "Portfolio"
+  "studioName": "AURORA",
+  "tagline": "Five Creatives. One Studio.",
+  "heroSubtitle": "Five Creatives. One Studio.",
+  "heroDescription": "A creative multimedia collective with rotating leadership. We specialize in design, animation, photography, modeling, and video — working together to create modern, story-driven visuals.",
+  "disciplines": ["Design", "Animation", "Photography", "Modeling", "Video"],
+  "aboutUs": {
+    "whoWeAre": "Aurora is a collaborative multimedia studio of five creatives with different strengths but shared vision.",
+    "howWeWork": "We use rotating leadership — the member best suited for a project leads, and everyone contributes across disciplines.",
+    "whatMakesUsUnique": "We are multi-skilled artists capable of delivering complete multimedia campaigns with unified aesthetic direction."
+  },
+  "behindTheBuild": {
+    "uvp": "Our UVP: Rotating Leadership + Multi-Disciplinary Skills",
+    "uvpDescription": "Aurora stands out because we combine individual expertise with a flexible workflow. Whoever's specialty fits the project becomes the lead, while the rest support through creative feedback and production work.",
+    "whyItWorks": "This system mirrors real studios: adaptable, collaborative, and dynamic.",
+    "strengths": [
+      "Full multimedia range",
+      "Multi-skilled members",
+      "Unified aesthetic",
+      "Shared creative direction"
+    ],
+    "impact": "We produce consistent, high-quality work across different mediums — from photos and videos to design, modeling, and animation."
+  },
+  "selectedWorksTitle": "Selected Works",
+  "selectedWorksSubtitle": "Featured projects from our creative collective",
+  "teamTitle": "Meet the Team",
+  "teamSubtitle": "Explore the work of each Aurora creatives — photography, modeling, design, animation, and video production — all unified through collaborative vision and rotating leadership.",
+  "teamDescription": "",
+  "contactHeading": "Let's Work Together",
+  "contactDescription": "For inquiries or collaborations:",
+  "contactEmail": "aurora.studio.team@gmail.com",
+  "socials": {
+    "instagram": "https://instagram.com/aurora.studio",
+    "facebook": "https://facebook.com/aurora.studio",
+    "tiktok": "https://tiktok.com/@aurora.studio"
+  },
+  "footer": {
+    "studioName": "AURORA",
+    "tagline": "Multimedia Studio",
+    "copyright": "© 2026 — All works by the Aurora creatives."
+  }
 }
