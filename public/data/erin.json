@@ -1,0 +1,37 @@
+{
+  "id": "erin",
+  "name": "Erin Margarette Pasamba",
+  "firstName": "Erin",
+  "role": "Photography",
+  "tagline": "Capturing moments that tell timeless stories",
+  "email": "erin@aurorastudio.com",
+  "avatar": "https://scontent.fmnl13-4.fna.fbcdn.net/v/t39.30808-1/627295557_3993005677658063_8558930524728465158_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=103&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeGs4PZaRTjSfe-Y92zg9n0HmYOlazTQ9t6Zg6VrNND23m__b0ECMn0XrYrRZO5I5ht8dDX8t8IQ346W-fNpsYT9&_nc_ohc=OExqGNJx7CwQ7kNvwE-P1aA&_nc_oc=Admh7nFYS_lInTk-zXjP_gvbUL38BDVSSKUs9fpFnu7rWQlxwchve5zNX1CLUBy6nkMY8WUAGRKgN5fCXNbd6XUO&_nc_zt=24&_nc_ht=scontent.fmnl13-4.fna&_nc_gid=X8b03E3jkH-fAWRkEAK1Bw&oh=00_Afu5eOQpqND8dv_a7sHRURDQamUczrAJ9kGpBge0m2NZrw&oe=698F06A7",
+  "accentColor": "#8B5CF6",
+  "accentColorRGB": "139, 92, 246",
+  "skills": [
+    "Portrait Photography",
+    "Event Photography",
+    "Photo Editing",
+    "Composition",
+    "Lighting"
+  ],
+  "socials": [
+    {
+      "platform": "Instagram",
+      "url": ""
+    },
+    {
+      "platform": "Behance",
+      "url": ""
+    }
+  ],
+  "works": [
+    {
+      "id": "ougpkoz",
+      "title": "Photography",
+      "description": "",
+      "tools": [],
+      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop"
+    }
+  ]
+}
