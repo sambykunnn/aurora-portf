@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Trash2, ChevronDown,
-  ArrowUp, ArrowDown, Type, Image, Columns2, Columns3,
+  Type, Image, Columns2, Columns3,
   Quote, Minus, LayoutTemplate, GalleryHorizontal, X,
-  Play, Grid2x2,
+  Play, Grid2x2, GripVertical,
 } from "lucide-react";
 import type { ContentBlock, BlockType } from "@/data/teamData";
 
@@ -115,14 +115,22 @@ function MiniTextArea({ value, onChange, placeholder, label, rows = 3 }: {
   );
 }
 
-/* ─── Image Entry Editor ─── */
+/* ─── Image Entry Editor with Zoom/Position ─── */
+
+type ImageData = { url: string; caption?: string; zoom?: number; objectX?: number; objectY?: number };
 
 function ImageEntry({ image, onChange, onDelete, showDelete }: {
-  image: { url: string; caption?: string };
-  onChange: (img: { url: string; caption?: string }) => void;
+  image: ImageData;
+  onChange: (img: ImageData) => void;
   onDelete?: () => void;
   showDelete?: boolean;
 }) {
+  const [showZoom, setShowZoom] = useState(false);
+  const zoom = image.zoom ?? 100;
+  const objectX = image.objectX ?? 50;
+  const objectY = image.objectY ?? 50;
+  const hasCustomZoom = zoom !== 100 || objectX !== 50 || objectY !== 50;
+
   return (
     <div className="rounded-lg border p-3 space-y-2" style={{ borderColor: "var(--divider)" }}>
       <div className="flex gap-2 items-start">
@@ -132,7 +140,18 @@ function ImageEntry({ image, onChange, onDelete, showDelete }: {
         </div>
         <div className="flex flex-col gap-1 pt-4">
           {image.url && (
-            <img src={image.url} alt="" className="w-14 h-10 rounded object-cover flex-shrink-0" />
+            <div className="w-14 h-10 rounded overflow-hidden flex-shrink-0">
+              <img
+                src={image.url}
+                alt=""
+                className="w-full h-full object-cover"
+                style={{
+                  transform: `scale(${zoom / 100})`,
+                  transformOrigin: `${objectX}% ${objectY}%`,
+                  objectPosition: `${objectX}% ${objectY}%`,
+                }}
+              />
+            </div>
           )}
           {showDelete && onDelete && (
             <button onClick={onDelete} className="p-1 text-red-500 hover:text-red-600 transition-colors">
@@ -141,6 +160,59 @@ function ImageEntry({ image, onChange, onDelete, showDelete }: {
           )}
         </div>
       </div>
+
+      {/* Zoom & Position Toggle */}
+      <button
+        onClick={() => setShowZoom(!showZoom)}
+        className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider transition-colors"
+        style={{ color: hasCustomZoom ? "#6366f1" : "var(--text-tertiary)" }}
+      >
+        <ChevronDown size={10} style={{ transform: showZoom ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s" }} />
+        Zoom & Position {hasCustomZoom && "●"}
+      </button>
+
+      <AnimatePresence>
+        {showZoom && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="rounded-lg p-3 space-y-3" style={{ background: "var(--bg-tertiary)" }}>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Zoom</label>
+                  <span className="text-[10px] font-mono font-bold" style={{ color: "var(--text-secondary)" }}>{zoom}%</span>
+                </div>
+                <input type="range" min="100" max="200" value={zoom} onChange={(e) => onChange({ ...image, zoom: parseInt(e.target.value) })}
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-indigo-500" style={{ background: "var(--divider)" }} />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>X Position</label>
+                  <span className="text-[10px] font-mono font-bold" style={{ color: "var(--text-secondary)" }}>{objectX}%</span>
+                </div>
+                <input type="range" min="0" max="100" value={objectX} onChange={(e) => onChange({ ...image, objectX: parseInt(e.target.value) })}
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-indigo-500" style={{ background: "var(--divider)" }} />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Y Position</label>
+                  <span className="text-[10px] font-mono font-bold" style={{ color: "var(--text-secondary)" }}>{objectY}%</span>
+                </div>
+                <input type="range" min="0" max="100" value={objectY} onChange={(e) => onChange({ ...image, objectY: parseInt(e.target.value) })}
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-indigo-500" style={{ background: "var(--divider)" }} />
+              </div>
+              <button onClick={() => onChange({ ...image, zoom: 100, objectX: 50, objectY: 50 })}
+                className="text-[10px] font-semibold text-red-400 hover:text-red-500 transition-colors">
+                Reset to Default
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -164,23 +236,16 @@ function TextEditor({ block, onChange }: { block: ContentBlock; onChange: (b: Co
       <MiniInput value={block.heading || ""} onChange={(v) => onChange({ ...block, heading: v })} placeholder="Section heading..." label="Heading" />
       <MiniTextArea value={block.body || ""} onChange={(v) => onChange({ ...block, body: v })} placeholder="Body text..." label="Body" rows={4} />
       <div>
-        <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--text-tertiary)" }}>
-          Alignment
-        </label>
+        <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--text-tertiary)" }}>Alignment</label>
         <div className="flex gap-1">
           {(["left", "center", "right"] as const).map((a) => (
-            <button
-              key={a}
-              onClick={() => onChange({ ...block, alignment: a })}
+            <button key={a} onClick={() => onChange({ ...block, alignment: a })}
               className="px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
               style={{
                 background: block.alignment === a ? "var(--text-primary)" : "var(--bg-primary)",
                 color: block.alignment === a ? "var(--bg-primary)" : "var(--text-secondary)",
                 border: "1px solid var(--divider)",
-              }}
-            >
-              {a}
-            </button>
+              }}>{a}</button>
           ))}
         </div>
       </div>
@@ -198,21 +263,29 @@ function ImageFullEditor({ block, onChange }: { block: ContentBlock; onChange: (
   );
 }
 
+function GapSlider({ gap, onChange }: { gap: number; onChange: (v: number) => void }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Grid Gap</label>
+        <span className="text-[10px] font-mono font-bold" style={{ color: "var(--text-secondary)" }}>{gap}px</span>
+      </div>
+      <input type="range" min="0" max="48" value={gap} onChange={(e) => onChange(parseInt(e.target.value))}
+        className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-indigo-500" style={{ background: "var(--divider)" }} />
+    </div>
+  );
+}
+
 function ImageGridEditor({ block, onChange, count }: { block: ContentBlock; onChange: (b: ContentBlock) => void; count: number }) {
   const images = block.images || [];
-  const updateImage = (index: number, img: { url: string; caption?: string }) => {
-    const newImages = [...images];
-    newImages[index] = img;
-    onChange({ ...block, images: newImages });
+  const updateImage = (index: number, img: ImageData) => {
+    const newImages = [...images]; newImages[index] = img; onChange({ ...block, images: newImages });
   };
-
-  // Ensure we have the right number of slots
-  while (images.length < count) {
-    images.push({ url: "", caption: "" });
-  }
+  while (images.length < count) images.push({ url: "", caption: "" });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      <GapSlider gap={block.gap ?? 4} onChange={(v) => onChange({ ...block, gap: v })} />
       <label className="block text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>
         Images ({count} slots)
       </label>
@@ -231,23 +304,16 @@ function ImageTextEditor({ block, onChange }: { block: ContentBlock; onChange: (
       <MiniInput value={block.heading || ""} onChange={(v) => onChange({ ...block, heading: v })} placeholder="Heading..." label="Heading" />
       <MiniTextArea value={block.body || ""} onChange={(v) => onChange({ ...block, body: v })} placeholder="Text content..." label="Text" rows={3} />
       <div>
-        <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--text-tertiary)" }}>
-          Text Position
-        </label>
+        <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--text-tertiary)" }}>Text Position</label>
         <div className="flex gap-1">
           {(["left", "right"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => onChange({ ...block, textSide: s })}
+            <button key={s} onClick={() => onChange({ ...block, textSide: s })}
               className="px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
               style={{
                 background: block.textSide === s ? "var(--text-primary)" : "var(--bg-primary)",
                 color: block.textSide === s ? "var(--bg-primary)" : "var(--text-secondary)",
                 border: "1px solid var(--divider)",
-              }}
-            >
-              Text {s}
-            </button>
+              }}>Text {s}</button>
           ))}
         </div>
       </div>
@@ -267,23 +333,16 @@ function QuoteEditor({ block, onChange }: { block: ContentBlock; onChange: (b: C
 function SpacerEditor({ block, onChange }: { block: ContentBlock; onChange: (b: ContentBlock) => void }) {
   return (
     <div>
-      <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--text-tertiary)" }}>
-        Spacer Size
-      </label>
+      <label className="block text-[10px] font-bold uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--text-tertiary)" }}>Spacer Size</label>
       <div className="flex gap-1">
         {(["sm", "md", "lg"] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => onChange({ ...block, size: s })}
+          <button key={s} onClick={() => onChange({ ...block, size: s })}
             className="px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-all"
             style={{
               background: block.size === s ? "var(--text-primary)" : "var(--bg-primary)",
               color: block.size === s ? "var(--bg-primary)" : "var(--text-secondary)",
               border: "1px solid var(--divider)",
-            }}
-          >
-            {s}
-          </button>
+            }}>{s}</button>
         ))}
       </div>
     </div>
@@ -292,42 +351,25 @@ function SpacerEditor({ block, onChange }: { block: ContentBlock; onChange: (b: 
 
 function GalleryEditor({ block, onChange }: { block: ContentBlock; onChange: (b: ContentBlock) => void }) {
   const images = block.images || [];
-
-  const updateImage = (index: number, img: { url: string; caption?: string }) => {
-    const newImages = [...images];
-    newImages[index] = img;
-    onChange({ ...block, images: newImages });
+  const updateImage = (index: number, img: ImageData) => {
+    const newImages = [...images]; newImages[index] = img; onChange({ ...block, images: newImages });
   };
-
-  const addImage = () => {
-    onChange({ ...block, images: [...images, { url: "", caption: "" }] });
-  };
-
-  const removeImage = (index: number) => {
-    onChange({ ...block, images: images.filter((_, i) => i !== index) });
-  };
+  const addImage = () => onChange({ ...block, images: [...images, { url: "", caption: "" }] });
+  const removeImage = (index: number) => onChange({ ...block, images: images.filter((_, i) => i !== index) });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      <GapSlider gap={block.gap ?? 4} onChange={(v) => onChange({ ...block, gap: v })} />
       <div className="flex items-center justify-between">
         <label className="block text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>
           Gallery Images ({images.length})
         </label>
-        <button
-          onClick={addImage}
-          className="text-[10px] font-semibold text-indigo-500 hover:text-indigo-600 flex items-center gap-0.5"
-        >
+        <button onClick={addImage} className="text-[10px] font-semibold text-indigo-500 hover:text-indigo-600 flex items-center gap-0.5">
           <Plus size={10} /> Add Image
         </button>
       </div>
       {images.map((img, i) => (
-        <ImageEntry
-          key={i}
-          image={img}
-          onChange={(v) => updateImage(i, v)}
-          onDelete={() => removeImage(i)}
-          showDelete={images.length > 1}
-        />
+        <ImageEntry key={i} image={img} onChange={(v) => updateImage(i, v)} onDelete={() => removeImage(i)} showDelete={images.length > 1} />
       ))}
     </div>
   );
@@ -367,26 +409,18 @@ function VideoEditor({ block, onChange }: { block: ContentBlock; onChange: (b: C
 
 function VideoGridEditor({ block, onChange }: { block: ContentBlock; onChange: (b: ContentBlock) => void }) {
   const videos = block.videos || [];
-
   const updateVideo = (index: number, vid: { url: string; caption?: string }) => {
     const newVids = [...videos]; newVids[index] = vid; onChange({ ...block, videos: newVids });
   };
-
-  const addVideo = () => {
-    onChange({ ...block, videos: [...videos, { url: "", caption: "" }] });
-  };
-
-  const removeVideo = (index: number) => {
-    onChange({ ...block, videos: videos.filter((_, i) => i !== index) });
-  };
+  const addVideo = () => onChange({ ...block, videos: [...videos, { url: "", caption: "" }] });
+  const removeVideo = (index: number) => onChange({ ...block, videos: videos.filter((_, i) => i !== index) });
 
   return (
     <div className="space-y-3">
+      <GapSlider gap={block.gap ?? 8} onChange={(v) => onChange({ ...block, gap: v })} />
       <MiniInput value={block.heading || ""} onChange={(v) => onChange({ ...block, heading: v })} placeholder="Grid title (optional)..." label="Title" />
       <div className="flex items-center justify-between">
-        <label className="block text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>
-          Videos ({videos.length})
-        </label>
+        <label className="block text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>Videos ({videos.length})</label>
         <button onClick={addVideo} className="text-[10px] font-semibold text-indigo-500 hover:text-indigo-600 flex items-center gap-0.5">
           <Plus size={10} /> Add Video
         </button>
@@ -405,25 +439,30 @@ function VideoGridEditor({ block, onChange }: { block: ContentBlock; onChange: (
         </div>
       ))}
       <div className="rounded-lg p-2.5 text-[10px]" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
-        <p><strong>Tip:</strong> 2 videos = 2-column, 3+ videos = responsive 2–3 column grid. Supports YouTube, Vimeo, Google Drive, and direct .mp4 URLs.</p>
+        <p><strong>Tip:</strong> 2 videos = 2-column, 3+ videos = responsive 2–3 column grid.</p>
       </div>
     </div>
   );
 }
 
-/* ─── Block Editor Item ─── */
+/* ─── Block Editor Item (Draggable) ─── */
 
-function BlockEditorItem({ block, index, total, expanded, onToggle, onChange, onDelete, onMoveUp, onMoveDown, accentColor }: {
+function BlockEditorItem({ block, index, expanded, onToggle, onChange, onDelete, accentColor, isDragging, isDropTarget, dropPosition, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop }: {
   block: ContentBlock;
   index: number;
-  total: number;
   expanded: boolean;
   onToggle: () => void;
   onChange: (b: ContentBlock) => void;
   onDelete: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
   accentColor: string;
+  isDragging: boolean;
+  isDropTarget: boolean;
+  dropPosition: "above" | "below" | null;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragEnd: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
 }) {
   const Icon = getBlockIcon(block.type);
 
@@ -446,73 +485,104 @@ function BlockEditorItem({ block, index, total, expanded, onToggle, onChange, on
   };
 
   return (
-    <div className="rounded-xl border overflow-hidden" style={{ borderColor: expanded ? accentColor + "40" : "var(--divider)" }}>
-      {/* Header */}
+    <div
+      className="relative"
+      data-block-index={index}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      {/* Drop indicator - above */}
+      {isDropTarget && dropPosition === "above" && (
+        <div className="absolute -top-[3px] left-0 right-0 z-20 flex items-center pointer-events-none">
+          <div className="w-3 h-3 rounded-full border-2 flex-shrink-0" style={{ borderColor: accentColor, background: accentColor }} />
+          <div className="flex-1 h-[3px] rounded-full" style={{ background: accentColor }} />
+          <div className="w-3 h-3 rounded-full border-2 flex-shrink-0" style={{ borderColor: accentColor, background: accentColor }} />
+        </div>
+      )}
+
       <div
-        className="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors"
-        onClick={onToggle}
+        draggable
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        className="rounded-xl border overflow-hidden transition-all duration-200"
+        style={{
+          borderColor: expanded ? accentColor + "40" : isDragging ? accentColor : "var(--divider)",
+          opacity: isDragging ? 0.4 : 1,
+          transform: isDragging ? "scale(0.98)" : "scale(1)",
+          boxShadow: isDragging ? `0 4px 20px rgba(0,0,0,0.15)` : "none",
+        }}
       >
-        <div className="flex flex-col gap-0.5">
-          <button
-            onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
-            disabled={index === 0}
-            className="p-0.5 rounded hover:bg-[var(--bg-tertiary)] disabled:opacity-20 transition-all"
+        {/* Header */}
+        <div className="flex items-center gap-2 px-3 py-2.5 hover:bg-[var(--bg-tertiary)] transition-colors">
+          {/* Drag Handle */}
+          <div
+            className="cursor-grab active:cursor-grabbing p-1 rounded-md hover:bg-[var(--bg-tertiary)] transition-colors touch-none"
             style={{ color: "var(--text-tertiary)" }}
+            title="Drag to reorder"
           >
-            <ArrowUp size={10} />
-          </button>
+            <GripVertical size={14} />
+          </div>
+
+          {/* Block info - clickable to expand */}
+          <div className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" onClick={onToggle}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: accentColor + "15", color: accentColor }}>
+              <Icon size={13} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+                {getBlockLabel(block.type)}
+              </p>
+              <p className="text-[10px] truncate" style={{ color: "var(--text-tertiary)" }}>
+                {block.heading || block.quote || block.caption || (block.image ? "Has image" : block.images?.length ? `${block.images.length} images` : block.size ? `Size: ${block.size}` : "Empty")}
+              </p>
+            </div>
+          </div>
+
           <button
-            onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
-            disabled={index === total - 1}
-            className="p-0.5 rounded hover:bg-[var(--bg-tertiary)] disabled:opacity-20 transition-all"
-            style={{ color: "var(--text-tertiary)" }}
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            className="p-1.5 rounded-lg text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all flex-shrink-0"
           >
-            <ArrowDown size={10} />
+            <Trash2 size={12} />
           </button>
+          <div className="cursor-pointer" onClick={onToggle}>
+            <ChevronDown
+              size={12}
+              style={{
+                color: "var(--text-tertiary)",
+                transform: expanded ? "rotate(180deg)" : "rotate(0)",
+                transition: "transform 0.2s",
+              }}
+            />
+          </div>
         </div>
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: accentColor + "15", color: accentColor }}>
-          <Icon size={13} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>
-            {getBlockLabel(block.type)}
-          </p>
-          <p className="text-[10px] truncate" style={{ color: "var(--text-tertiary)" }}>
-            {block.heading || block.quote || block.caption || (block.image ? "Has image" : block.images?.length ? `${block.images.length} images` : block.size ? `Size: ${block.size}` : "Empty")}
-          </p>
-        </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="p-1.5 rounded-lg text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all flex-shrink-0"
-        >
-          <Trash2 size={12} />
-        </button>
-        <ChevronDown
-          size={12}
-          style={{
-            color: "var(--text-tertiary)",
-            transform: expanded ? "rotate(180deg)" : "rotate(0)",
-            transition: "transform 0.2s",
-          }}
-        />
+
+        {/* Expanded editor */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="px-3 pb-3 pt-1 border-t" style={{ borderColor: "var(--divider)" }}>
+                {renderEditor()}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Expanded editor */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div className="px-3 pb-3 pt-1 border-t" style={{ borderColor: "var(--divider)" }}>
-              {renderEditor()}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Drop indicator - below */}
+      {isDropTarget && dropPosition === "below" && (
+        <div className="absolute -bottom-[3px] left-0 right-0 z-20 flex items-center pointer-events-none">
+          <div className="w-3 h-3 rounded-full border-2 flex-shrink-0" style={{ borderColor: accentColor, background: accentColor }} />
+          <div className="flex-1 h-[3px] rounded-full" style={{ background: accentColor }} />
+          <div className="w-3 h-3 rounded-full border-2 flex-shrink-0" style={{ borderColor: accentColor, background: accentColor }} />
+        </div>
+      )}
     </div>
   );
 }
@@ -555,19 +625,13 @@ function AddBlockMenu({ onAdd, accentColor }: { onAdd: (type: BlockType) => void
                   onClick={() => { onAdd(bt.type); setOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[var(--bg-tertiary)] transition-colors"
                 >
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: accentColor + "15", color: accentColor }}
-                  >
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: accentColor + "15", color: accentColor }}>
                     <BIcon size={13} />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
-                      {bt.label}
-                    </p>
-                    <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
-                      {bt.description}
-                    </p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>{bt.label}</p>
+                    <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>{bt.description}</p>
                   </div>
                 </button>
               );
@@ -579,7 +643,7 @@ function AddBlockMenu({ onAdd, accentColor }: { onAdd: (type: BlockType) => void
   );
 }
 
-/* ─── Main BlockEditor Component ─── */
+/* ─── Main BlockEditor Component with Drag & Drop ─── */
 
 interface BlockEditorProps {
   blocks: ContentBlock[];
@@ -589,6 +653,10 @@ interface BlockEditorProps {
 
 export function BlockEditor({ blocks, onChange, accentColor }: BlockEditorProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  const [dropPosition, setDropPosition] = useState<"above" | "below" | null>(null);
+  const blockRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   const addBlock = (type: BlockType) => {
     const newBlock = createDefaultBlock(type);
@@ -605,13 +673,120 @@ export function BlockEditor({ blocks, onChange, accentColor }: BlockEditorProps)
     if (expandedId === id) setExpandedId(null);
   };
 
-  const moveBlock = (index: number, direction: "up" | "down") => {
-    const swapIndex = direction === "up" ? index - 1 : index + 1;
-    if (swapIndex < 0 || swapIndex >= blocks.length) return;
+  /* ─── Drag & Drop Handlers ─── */
+
+  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(index));
+
+    // Create a custom drag image
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const ghost = el.cloneNode(true) as HTMLElement;
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.opacity = "0.85";
+    ghost.style.transform = "rotate(1deg)";
+    ghost.style.boxShadow = `0 8px 30px rgba(0,0,0,0.2)`;
+    ghost.style.borderRadius = "12px";
+    ghost.style.position = "absolute";
+    ghost.style.top = "-9999px";
+    ghost.style.left = "-9999px";
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, rect.width / 2, 20);
+    requestAnimationFrame(() => document.body.removeChild(ghost));
+  }, []);
+
+  const handleDragEnd = useCallback((_e: React.DragEvent) => {
+    setDraggedIndex(null);
+    setDropTargetIndex(null);
+    setDropPosition(null);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    if (draggedIndex === null || draggedIndex === index) {
+      // Still show indicator if hovering over adjacent items
+      if (draggedIndex === index) {
+        setDropTargetIndex(null);
+        setDropPosition(null);
+        return;
+      }
+    }
+
+    // Determine whether to drop above or below based on mouse position within the element
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const mouseY = e.clientY;
+    const midY = rect.top + rect.height / 2;
+
+    const pos = mouseY < midY ? "above" : "below";
+
+    // Don't show indicator in positions that would result in no movement
+    const effectiveInsertIndex = pos === "above" ? index : index + 1;
+    if (draggedIndex !== null && (effectiveInsertIndex === draggedIndex || effectiveInsertIndex === draggedIndex + 1)) {
+      setDropTargetIndex(null);
+      setDropPosition(null);
+      return;
+    }
+
+    setDropTargetIndex(index);
+    setDropPosition(pos);
+  }, [draggedIndex]);
+
+  const handleDragLeave = useCallback((_e: React.DragEvent) => {
+    // Only clear if leaving the entire block area
+    setDropTargetIndex(null);
+    setDropPosition(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+
+    if (draggedIndex === null) return;
+
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const mouseY = e.clientY;
+    const midY = rect.top + rect.height / 2;
+    const pos = mouseY < midY ? "above" : "below";
+
+    let insertIndex = pos === "above" ? targetIndex : targetIndex + 1;
+
+    // Don't do anything if it would result in no change
+    if (insertIndex === draggedIndex || insertIndex === draggedIndex + 1) {
+      setDraggedIndex(null);
+      setDropTargetIndex(null);
+      setDropPosition(null);
+      return;
+    }
+
+    // Perform the reorder
+    const fromIndex = draggedIndex;
     const newBlocks = [...blocks];
-    [newBlocks[index], newBlocks[swapIndex]] = [newBlocks[swapIndex], newBlocks[index]];
+    const [dragged] = newBlocks.splice(fromIndex, 1);
+
+    // Adjust insert index after removal
+    if (fromIndex < insertIndex) insertIndex--;
+
+    newBlocks.splice(insertIndex, 0, dragged);
     onChange(newBlocks);
-  };
+
+    setDraggedIndex(null);
+    setDropTargetIndex(null);
+    setDropPosition(null);
+  }, [draggedIndex, blocks, onChange]);
+
+  // Store refs for touch drag (future enhancement)
+  const setBlockRef = useCallback((index: number, el: HTMLDivElement | null) => {
+    if (el) blockRefs.current.set(index, el);
+    else blockRefs.current.delete(index);
+  }, []);
+
+  // Prevent unused warning
+  void setBlockRef;
 
   return (
     <div className="space-y-2">
@@ -623,6 +798,11 @@ export function BlockEditor({ blocks, onChange, accentColor }: BlockEditorProps)
           <LayoutTemplate size={12} />
           Content Blocks ({blocks.length})
         </h4>
+        {blocks.length > 1 && (
+          <span className="text-[10px] flex items-center gap-1" style={{ color: "var(--text-tertiary)" }}>
+            <GripVertical size={10} /> Drag to reorder
+          </span>
+        )}
       </div>
 
       {blocks.length === 0 && (
@@ -634,21 +814,28 @@ export function BlockEditor({ blocks, onChange, accentColor }: BlockEditorProps)
         </div>
       )}
 
-      {blocks.map((block, index) => (
-        <BlockEditorItem
-          key={block.id}
-          block={block}
-          index={index}
-          total={blocks.length}
-          expanded={expandedId === block.id}
-          onToggle={() => setExpandedId(expandedId === block.id ? null : block.id)}
-          onChange={(b) => updateBlock(block.id, b)}
-          onDelete={() => removeBlock(block.id)}
-          onMoveUp={() => moveBlock(index, "up")}
-          onMoveDown={() => moveBlock(index, "down")}
-          accentColor={accentColor}
-        />
-      ))}
+      <div className="space-y-1.5">
+        {blocks.map((block, index) => (
+          <BlockEditorItem
+            key={block.id}
+            block={block}
+            index={index}
+            expanded={expandedId === block.id}
+            onToggle={() => setExpandedId(expandedId === block.id ? null : block.id)}
+            onChange={(b) => updateBlock(block.id, b)}
+            onDelete={() => removeBlock(block.id)}
+            accentColor={accentColor}
+            isDragging={draggedIndex === index}
+            isDropTarget={dropTargetIndex === index}
+            dropPosition={dropTargetIndex === index ? dropPosition : null}
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, index)}
+          />
+        ))}
+      </div>
 
       <AddBlockMenu onAdd={addBlock} accentColor={accentColor} />
     </div>
