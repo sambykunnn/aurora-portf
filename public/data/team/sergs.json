@@ -1,0 +1,38 @@
+{
+  "id": "sergs",
+  "name": "Sergs Dimaano",
+  "firstName": "Sergs",
+  "role": "3D Animation",
+  "tagline": "Bringing dimensions to life",
+  "skills": ["3D Modeling", "Character Animation", "Motion Graphics", "VFX", "Rigging", "Texturing"],
+  "accentColor": "#EC4899",
+  "accentColorRGB": "236, 72, 153",
+  "email": "sergs@aurorastudio.com",
+  "socials": [
+    { "platform": "ArtStation", "url": "#" },
+    { "platform": "Vimeo", "url": "#" },
+    { "platform": "Instagram", "url": "#" }
+  ],
+  "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face",
+  "works": [
+    {
+      "id": "s1",
+      "title": "Celestial Drift",
+      "description": "Animated short film exploring cosmic phenomena through abstract 3D forms",
+      "tools": ["Blender", "After Effects"],
+      "image": "https://images.unsplash.com/photo-1634017839464-5c339afa60f0?w=600&h=400&fit=crop",
+      "contentBlocks": [
+        { "id": "s1b1", "type": "hero-image", "image": "https://images.unsplash.com/photo-1634017839464-5c339afa60f0?w=1400&h=700&fit=crop", "heading": "Celestial Drift", "body": "Animated Short Film · 3D Abstract" },
+        { "id": "s1b2", "type": "text", "heading": "Concept & Vision", "body": "Celestial Drift is an exploration of cosmic phenomena through the lens of abstract 3D art.", "alignment": "center" },
+        { "id": "s1b3", "type": "image-grid-2", "images": [{ "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop", "caption": "Storyboard: Nebula Sequence" }, { "url": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&h=400&fit=crop", "caption": "Storyboard: Stellar Birth" }] },
+        { "id": "s1b4", "type": "image-full", "image": "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=1200&h=600&fit=crop", "caption": "Final key frame render — The Convergence" },
+        { "id": "s1b5", "type": "image-text", "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop", "heading": "Technical Approach", "body": "Built entirely in Blender with custom shader nodes for the volumetric nebula effects.", "textSide": "right" }
+      ]
+    },
+    { "id": "s2", "title": "Mecha Genesis", "description": "Character design and animation for a sci-fi game trailer", "tools": ["Maya", "ZBrush"], "image": "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&h=400&fit=crop" },
+    { "id": "s3", "title": "Fluid Dynamics", "description": "Real-time simulation of liquid physics for product visualization", "tools": ["Houdini", "Redshift"], "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop" },
+    { "id": "s4", "title": "Architectural Walk", "description": "Photorealistic walkthrough animation for a modern residential project", "tools": ["3ds Max", "V-Ray"], "image": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&h=400&fit=crop" },
+    { "id": "s5", "title": "Loop Series", "description": "Collection of satisfying infinite loop animations for social media", "tools": ["Cinema 4D", "Octane"], "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop" },
+    { "id": "s6", "title": "Product Reveal", "description": "Premium unboxing animation for a luxury tech product launch", "tools": ["Blender", "Substance"], "image": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop" }
+  ]
+}

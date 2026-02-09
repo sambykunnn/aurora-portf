@@ -5,7 +5,8 @@ import {
   Save, RotateCcw, Plus, Trash2, ChevronDown, ChevronRight,
   Check, AlertCircle, GripVertical, ExternalLink, Palette,
   Rocket, Github, RefreshCw, Shield, Clock, Download, Upload,
-  Cloud, CloudOff, Loader2, CheckCircle2, XCircle,
+  Cloud, CloudOff, Loader2, CheckCircle2, XCircle, FileJson,
+  FolderTree,
 } from "lucide-react";
 import { useData, type SiteContent, type GitHubConfig, type SyncStatus } from "@/context/DataContext";
 import type { TeamMember, WorkItem } from "@/data/teamData";
@@ -17,28 +18,21 @@ const ADMIN_PASS = "admin123";
 const AUTH_KEY = "aurora_admin_auth";
 
 /* ─── helpers ─── */
-function generateId() {
-  return Math.random().toString(36).substring(2, 9);
-}
-
+function generateId() { return Math.random().toString(36).substring(2, 9); }
 function hexToRgb(hex: string): string | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : null;
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
 }
 
-/* ─── Sync Status Badge ─── */
+/* ─── Sync Badge ─── */
 function SyncBadge({ status, message, isConfigured }: { status: SyncStatus; message: string; isConfigured: boolean }) {
   if (!isConfigured) {
     return (
       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
-        <CloudOff size={11} />
-        <span>Local Only</span>
+        <CloudOff size={11} /><span>Local Only</span>
       </div>
     );
   }
-
   const configs: Record<SyncStatus, { icon: ReactNode; color: string; bg: string; label: string }> = {
     idle: { icon: <Cloud size={11} />, color: "#10B981", bg: "rgba(16,185,129,0.1)", label: "GitHub Connected" },
     saving: { icon: <Loader2 size={11} className="animate-spin" />, color: "#6366F1", bg: "rgba(99,102,241,0.1)", label: "Saving..." },
@@ -46,140 +40,89 @@ function SyncBadge({ status, message, isConfigured }: { status: SyncStatus; mess
     success: { icon: <CheckCircle2 size={11} />, color: "#10B981", bg: "rgba(16,185,129,0.1)", label: "Saved ✓" },
     error: { icon: <XCircle size={11} />, color: "#EF4444", bg: "rgba(239,68,68,0.1)", label: "Error" },
   };
-
   const cfg = configs[status];
-
   return (
-    <div
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-300"
-      style={{ background: cfg.bg, color: cfg.color }}
-      title={message || cfg.label}
-    >
-      {cfg.icon}
-      <span>{message ? (message.length > 30 ? message.slice(0, 30) + "..." : message) : cfg.label}</span>
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all duration-300"
+      style={{ background: cfg.bg, color: cfg.color }} title={message || cfg.label}>
+      {cfg.icon}<span>{message ? (message.length > 30 ? message.slice(0, 30) + "..." : message) : cfg.label}</span>
     </div>
   );
 }
 
 /* ─── Toast ─── */
 function Toast({ message, type, onDone }: { message: string; type: "success" | "error"; onDone: () => void }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 4000);
-    return () => clearTimeout(t);
-  }, [onDone]);
-
+  useEffect(() => { const t = setTimeout(onDone, 4000); return () => clearTimeout(t); }, [onDone]);
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+    <motion.div initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }}
       className="fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl max-w-sm"
-      style={{ background: type === "success" ? "#10B981" : "#EF4444", color: "#fff" }}
-    >
+      style={{ background: type === "success" ? "#10B981" : "#EF4444", color: "#fff" }}>
       {type === "success" ? <Check size={18} /> : <AlertCircle size={18} />}
       <span className="text-sm font-semibold">{message}</span>
     </motion.div>
   );
 }
 
-/* ─── Styled form elements ─── */
+/* ─── Form elements ─── */
 function FormGroup({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--text-tertiary)" }}>
-        {label}
-      </label>
+      <label className="block text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--text-tertiary)" }}>{label}</label>
       {children}
       {hint && <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>{hint}</p>}
     </div>
   );
 }
 
-function Input({ value, onChange, placeholder, type = "text" }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
-}) {
+function Input({ value, onChange, placeholder, type = "text" }: { value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
   return (
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
+    <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
       className="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
-      style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }}
-    />
+      style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }} />
   );
 }
 
-function TextArea({ value, onChange, placeholder, rows = 3 }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; rows?: number;
-}) {
+function TextArea({ value, onChange, placeholder, rows = 3 }: { value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
   return (
-    <textarea
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      rows={rows}
+    <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={rows}
       className="w-full px-3.5 py-2.5 rounded-xl border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 resize-none"
-      style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }}
-    />
+      style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }} />
   );
 }
 
-function TagsInput({ tags, onChange, placeholder }: {
-  tags: string[]; onChange: (tags: string[]) => void; placeholder?: string;
-}) {
+function TagsInput({ tags, onChange, placeholder }: { tags: string[]; onChange: (tags: string[]) => void; placeholder?: string }) {
   const [input, setInput] = useState("");
-  const addTag = () => {
-    const val = input.trim();
-    if (val && !tags.includes(val)) { onChange([...tags, val]); setInput(""); }
-  };
+  const addTag = () => { const val = input.trim(); if (val && !tags.includes(val)) { onChange([...tags, val]); setInput(""); } };
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1.5">
         {tags.map((tag, i) => (
           <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
-            {tag}
-            <button onClick={() => onChange(tags.filter((_, idx) => idx !== i))} className="ml-0.5 hover:opacity-60"><X size={10} /></button>
+            {tag}<button onClick={() => onChange(tags.filter((_, idx) => idx !== i))} className="ml-0.5 hover:opacity-60"><X size={10} /></button>
           </span>
         ))}
       </div>
       <div className="flex gap-2">
-        <input
-          value={input} onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
-          placeholder={placeholder || "Add tag..."}
-          className="flex-1 px-3.5 py-2 rounded-xl border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
-          style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }}
-        />
+        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+          placeholder={placeholder || "Add tag..."} className="flex-1 px-3.5 py-2 rounded-xl border text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+          style={{ background: "var(--bg-secondary)", color: "var(--text-primary)", borderColor: "var(--divider)" }} />
         <button onClick={addTag} className="px-3 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors"><Plus size={14} /></button>
       </div>
     </div>
   );
 }
 
-/* ─── Save Button with auto GitHub push ─── */
-function SaveButton({ onSave, hasChanges, label = "Save" }: { onSave: () => void; hasChanges: boolean; label?: string }) {
+/* ─── Save Button ─── */
+function SaveButton({ onSave, hasChanges, label = "Save", pushLabel }: { onSave: () => void; hasChanges: boolean; label?: string; pushLabel?: string }) {
   const { isGitHubConfigured, syncStatus } = useData();
   const isSyncing = syncStatus === "syncing" || syncStatus === "saving";
-
   if (!hasChanges) return null;
-
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex gap-2">
-      <button
-        onClick={onSave}
-        disabled={isSyncing}
+      <button onClick={onSave} disabled={isSyncing}
         className="px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-300 flex items-center gap-1.5 disabled:opacity-60 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-        style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
-      >
-        {isSyncing ? (
-          <><Loader2 size={14} className="animate-spin" /> Saving...</>
-        ) : (
-          <>
-            {isGitHubConfigured ? <Cloud size={14} /> : <Save size={14} />}
-            {label}{isGitHubConfigured ? " & Push" : ""}
-          </>
-        )}
+        style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
+        {isSyncing ? <><Loader2 size={14} className="animate-spin" /> Saving...</>
+          : <>{isGitHubConfigured ? <Cloud size={14} /> : <Save size={14} />}{pushLabel && isGitHubConfigured ? pushLabel : label}</>}
       </button>
     </motion.div>
   );
@@ -188,42 +131,27 @@ function SaveButton({ onSave, hasChanges, label = "Save" }: { onSave: () => void
 function DiscardButton({ onDiscard, hasChanges }: { onDiscard: () => void; hasChanges: boolean }) {
   if (!hasChanges) return null;
   return (
-    <button onClick={onDiscard} className="px-4 py-2 rounded-xl text-sm font-medium border transition-colors hover:bg-[var(--bg-tertiary)]" style={{ borderColor: "var(--divider)", color: "var(--text-secondary)" }}>
-      Discard
-    </button>
+    <button onClick={onDiscard} className="px-4 py-2 rounded-xl text-sm font-medium border transition-colors hover:bg-[var(--bg-tertiary)]"
+      style={{ borderColor: "var(--divider)", color: "var(--text-secondary)" }}>Discard</button>
   );
 }
 
-/* ─── Login Screen ─── */
+/* ─── Login ─── */
 function AdminLogin({ onLogin }: { onLogin: () => void }) {
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [user, setUser] = useState(""); const [pass, setPass] = useState(""); const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    e.preventDefault(); setError(""); setLoading(true);
     setTimeout(() => {
-      if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        localStorage.setItem(AUTH_KEY, "true");
-        onLogin();
-      } else {
-        setError("Invalid username or password");
-        setLoading(false);
-      }
+      if (user === ADMIN_USER && pass === ADMIN_PASS) { localStorage.setItem(AUTH_KEY, "true"); onLogin(); }
+      else { setError("Invalid username or password"); setLoading(false); }
     }, 600);
   };
-
   return (
     <div className="min-h-full flex items-center justify-center p-6">
       <motion.div initial={{ opacity: 0, y: 20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5 }} className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
-            <Lock size={28} className="text-white" />
-          </div>
+          <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}><Lock size={28} className="text-white" /></div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--text-primary)" }}>Admin Panel</h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>Sign in to manage Aurora Studio</p>
         </div>
@@ -257,47 +185,45 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
 
 /* ─── Site Settings Editor ─── */
 function SiteSettingsEditor({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
-  const { siteContent, teamMembers, updateSiteContent, resetToDefaults, isGitHubConfigured, pushToGitHub } = useData();
+  const { siteContent, teamMembers, updateSiteContent, resetToDefaults, isGitHubConfigured, pushSiteToGitHub } = useData();
   const [draft, setDraft] = useState<SiteContent>(siteContent);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => { setDraft(siteContent); setHasChanges(false); }, [siteContent]);
 
-  const update = (key: keyof SiteContent, value: string | string[]) => {
-    setDraft((prev) => ({ ...prev, [key]: value }));
-    setHasChanges(true);
-  };
+  const update = (key: keyof SiteContent, value: string | string[]) => { setDraft((prev) => ({ ...prev, [key]: value })); setHasChanges(true); };
 
   const save = async () => {
-    updateSiteContent(draft);
+    const merged = { ...siteContent, ...draft };
+    updateSiteContent(merged);
     setHasChanges(false);
     onToast("Site settings saved!", "success");
-    // Auto-push to GitHub with explicit updated data
     if (isGitHubConfigured) {
-      const result = await pushToGitHub({ ...siteContent, ...draft }, teamMembers);
+      const result = await pushSiteToGitHub(merged);
       if (!result.success) onToast(result.message, "error");
+      else onToast("✓ site.json pushed to GitHub", "success");
     }
   };
 
   const discard = () => { setDraft(siteContent); setHasChanges(false); };
+  const reset = () => { if (confirm("Reset all site content and team data to defaults?")) { resetToDefaults(); onToast("Reset to defaults!", "success"); } };
 
-  const reset = () => {
-    if (confirm("Reset all site content and team data to defaults? This cannot be undone.")) {
-      resetToDefaults();
-      onToast("Reset to defaults!", "success");
-    }
-  };
+  // unused var fix
+  void teamMembers;
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Site Settings</h2>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>Configure global site content</p>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
+            Configure global site content
+            {isGitHubConfigured && <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">→ site.json</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <DiscardButton onDiscard={discard} hasChanges={hasChanges} />
-          <SaveButton onSave={save} hasChanges={hasChanges} />
+          <SaveButton onSave={save} hasChanges={hasChanges} pushLabel="Save & Push site.json" />
         </div>
       </div>
 
@@ -306,7 +232,7 @@ function SiteSettingsEditor({ onToast }: { onToast: (msg: string, type: "success
         <h3 className="text-sm font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-primary)" }}>Branding</h3>
         <div className="grid md:grid-cols-2 gap-5">
           <FormGroup label="Studio Name"><Input value={draft.studioName} onChange={(v) => update("studioName", v)} placeholder="Aurora" /></FormGroup>
-          <FormGroup label="Studio Tagline"><Input value={draft.studioTagline} onChange={(v) => update("studioTagline", v)} placeholder="Creative Multimedia Studio" /></FormGroup>
+          <FormGroup label="Studio Tagline"><Input value={draft.studioTagline} onChange={(v) => update("studioTagline", v)} /></FormGroup>
         </div>
       </div>
 
@@ -345,7 +271,7 @@ function SiteSettingsEditor({ onToast }: { onToast: (msg: string, type: "success
         <FormGroup label="Contact Email"><Input value={draft.contactEmail} onChange={(v) => update("contactEmail", v)} type="email" /></FormGroup>
       </div>
 
-      {/* Danger zone */}
+      {/* Danger */}
       <div className="rounded-2xl p-6 space-y-4 border-2 border-red-500/20">
         <h3 className="text-sm font-bold uppercase tracking-[0.1em] text-red-500">Danger Zone</h3>
         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Reset all content to factory defaults.</p>
@@ -357,10 +283,8 @@ function SiteSettingsEditor({ onToast }: { onToast: (msg: string, type: "success
   );
 }
 
-/* ─── Work Item Editor ─── */
-function WorkEditor({ work, accentColor, onChange, onDelete }: {
-  work: WorkItem; accentColor: string; onChange: (w: WorkItem) => void; onDelete: () => void;
-}) {
+/* ─── Work Editor ─── */
+function WorkEditor({ work, accentColor, onChange, onDelete }: { work: WorkItem; accentColor: string; onChange: (w: WorkItem) => void; onDelete: () => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--divider)" }}>
@@ -392,50 +316,39 @@ function WorkEditor({ work, accentColor, onChange, onDelete }: {
 }
 
 /* ─── Member Editor ─── */
-function MemberEditor({ member, onBack, onToast }: {
-  member: TeamMember; onBack: () => void; onToast: (msg: string, type: "success" | "error") => void;
-}) {
-  const { updateTeamMember, isGitHubConfigured, pushToGitHub, teamMembers, siteContent } = useData();
+function MemberEditor({ member, onBack, onToast }: { member: TeamMember; onBack: () => void; onToast: (msg: string, type: "success" | "error") => void }) {
+  const { updateTeamMember, isGitHubConfigured, pushMemberToGitHub } = useData();
   const [draft, setDraft] = useState<TeamMember>(member);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const update = <K extends keyof TeamMember>(key: K, value: TeamMember[K]) => {
-    setDraft((prev) => ({ ...prev, [key]: value }));
-    setHasChanges(true);
-  };
+  const update = <K extends keyof TeamMember>(key: K, value: TeamMember[K]) => { setDraft((prev) => ({ ...prev, [key]: value })); setHasChanges(true); };
 
   const save = async () => {
     updateTeamMember(draft.id, draft);
     setHasChanges(false);
     onToast(`${draft.firstName}'s profile saved!`, "success");
     if (isGitHubConfigured) {
-      // Build the updated team array with the draft applied (state hasn't committed yet)
-      const updatedTeam = teamMembers.map((m) => (m.id === draft.id ? { ...m, ...draft } : m));
-      const result = await pushToGitHub(siteContent, updatedTeam);
+      // Push only this member's file
+      const result = await pushMemberToGitHub(draft);
       if (!result.success) onToast(result.message, "error");
+      else onToast(`✓ ${draft.firstName}'s file pushed to GitHub`, "success");
     }
   };
 
   const updateSocial = (index: number, field: "platform" | "url", value: string) => {
-    const newSocials = [...draft.socials];
-    newSocials[index] = { ...newSocials[index], [field]: value };
-    update("socials", newSocials);
+    const s = [...draft.socials]; s[index] = { ...s[index], [field]: value }; update("socials", s);
   };
   const addSocial = () => update("socials", [...draft.socials, { platform: "", url: "#" }]);
-  const removeSocial = (index: number) => update("socials", draft.socials.filter((_, i) => i !== index));
+  const removeSocial = (i: number) => update("socials", draft.socials.filter((_, idx) => idx !== i));
 
-  const updateWork = (index: number, work: WorkItem) => {
-    const newWorks = [...draft.works];
-    newWorks[index] = work;
-    update("works", newWorks);
-  };
+  const updateWork = (i: number, w: WorkItem) => { const ws = [...draft.works]; ws[i] = w; update("works", ws); };
   const addWork = () => {
     update("works", [...draft.works, {
       id: generateId(), title: "New Work", description: "", tools: [],
       image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop",
     }]);
   };
-  const removeWork = (index: number) => { if (confirm("Remove this work?")) update("works", draft.works.filter((_, i) => i !== index)); };
+  const removeWork = (i: number) => { if (confirm("Remove this work?")) update("works", draft.works.filter((_, idx) => idx !== i)); };
 
   return (
     <div className="space-y-6">
@@ -450,13 +363,16 @@ function MemberEditor({ member, onBack, onToast }: {
             </div>
             <div>
               <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>{draft.name}</h2>
-              <p className="text-sm" style={{ color: draft.accentColor }}>{draft.role}</p>
+              <p className="text-sm" style={{ color: draft.accentColor }}>
+                {draft.role}
+                {isGitHubConfigured && <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">→ {draft.id}.json</span>}
+              </p>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <DiscardButton onDiscard={() => { setDraft(member); setHasChanges(false); }} hasChanges={hasChanges} />
-          <SaveButton onSave={save} hasChanges={hasChanges} />
+          <SaveButton onSave={save} hasChanges={hasChanges} pushLabel={`Save & Push`} />
         </div>
       </div>
 
@@ -478,11 +394,9 @@ function MemberEditor({ member, onBack, onToast }: {
         </FormGroup>
       </div>
 
-      {/* Accent Color */}
+      {/* Color */}
       <div className="glass-card rounded-2xl p-6 space-y-5">
-        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
-          <Palette size={14} /> Accent Color
-        </h3>
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}><Palette size={14} /> Accent Color</h3>
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex gap-2">
             {["#6366F1", "#EC4899", "#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#06B6D4", "#F97316"].map((c) => (
@@ -492,7 +406,8 @@ function MemberEditor({ member, onBack, onToast }: {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <input type="color" value={draft.accentColor} onChange={(e) => { const c = e.target.value; const rgb = hexToRgb(c); update("accentColor", c); if (rgb) update("accentColorRGB", rgb); }} className="w-8 h-8 rounded-lg border-0 cursor-pointer" />
+            <input type="color" value={draft.accentColor} onChange={(e) => { const c = e.target.value; const rgb = hexToRgb(c); update("accentColor", c); if (rgb) update("accentColorRGB", rgb); }}
+              className="w-8 h-8 rounded-lg border-0 cursor-pointer" />
             <span className="text-xs font-mono" style={{ color: "var(--text-tertiary)" }}>{draft.accentColor}</span>
           </div>
         </div>
@@ -530,10 +445,10 @@ function MemberEditor({ member, onBack, onToast }: {
           <button onClick={addWork} className="text-xs font-semibold text-indigo-500 hover:text-indigo-600 flex items-center gap-1"><Plus size={12} /> Add Work</button>
         </div>
         <div className="space-y-2">
-          {draft.works.map((work, i) => (
-            <WorkEditor key={work.id} work={work} accentColor={draft.accentColor} onChange={(w) => updateWork(i, w)} onDelete={() => removeWork(i)} />
+          {draft.works.map((w, i) => (
+            <WorkEditor key={w.id} work={w} accentColor={draft.accentColor} onChange={(wk) => updateWork(i, wk)} onDelete={() => removeWork(i)} />
           ))}
-          {draft.works.length === 0 && <p className="text-sm text-center py-6" style={{ color: "var(--text-tertiary)" }}>No works yet. Click "Add Work" to create one.</p>}
+          {draft.works.length === 0 && <p className="text-sm text-center py-6" style={{ color: "var(--text-tertiary)" }}>No works yet.</p>}
         </div>
       </div>
     </div>
@@ -551,7 +466,7 @@ function TeamMembersEditor({ onToast }: { onToast: (msg: string, type: "success"
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Team Members</h2>
-        <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>Click a member to edit their profile and portfolio</p>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>Click a member to edit. Each member is saved as a separate JSON file.</p>
       </div>
       <div className="space-y-3">
         {teamMembers.map((member, i) => (
@@ -578,13 +493,13 @@ function TeamMembersEditor({ onToast }: { onToast: (msg: string, type: "success"
   );
 }
 
-/* ─── GitHub / Deploy Settings ─── */
+/* ─── GitHub / Files ─── */
 function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
   const {
     githubConfig, setGitHubConfig, saveToGitHub, loadFromGitHub,
     isDeploying, lastDeployTime, syncStatus, syncMessage,
     siteContent, teamMembers, updateSiteContent, updateTeamMembers,
-    isGitHubConfigured, dataSource,
+    isGitHubConfigured, dataSource, fileStructure, changedFiles,
   } = useData();
   const [draft, setDraft] = useState<GitHubConfig>(githubConfig);
   const [showToken, setShowToken] = useState(false);
@@ -592,16 +507,9 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
 
   useEffect(() => { setDraft(githubConfig); setConfigChanged(false); }, [githubConfig]);
 
-  const updateDraft = (key: keyof GitHubConfig, value: string) => {
-    setDraft((prev) => ({ ...prev, [key]: value }));
-    setConfigChanged(true);
-  };
+  const updateDraft = (key: keyof GitHubConfig, value: string) => { setDraft((prev) => ({ ...prev, [key]: value })); setConfigChanged(true); };
 
-  const saveConfig = () => {
-    setGitHubConfig(draft);
-    setConfigChanged(false);
-    onToast("GitHub config saved!", "success");
-  };
+  const saveConfig = () => { setGitHubConfig(draft); setConfigChanged(false); onToast("GitHub config saved!", "success"); };
 
   const handleDeploy = async () => {
     if (configChanged) { setGitHubConfig(draft); setConfigChanged(false); }
@@ -619,26 +527,22 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = `aurora-data-${new Date().toISOString().split("T")[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = `aurora-data-${new Date().toISOString().split("T")[0]}.json`;
+    a.click(); URL.revokeObjectURL(url);
     onToast("Data exported!", "success");
   };
 
   const handleImport = () => {
     const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
+    input.type = "file"; input.accept = ".json";
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
       try {
-        const text = await file.text();
-        const data = JSON.parse(text);
+        const text = await file.text(); const data = JSON.parse(text);
         if (data.siteContent) updateSiteContent(data.siteContent);
         if (data.teamMembers) updateTeamMembers(data.teamMembers);
-        onToast("Data imported! Click Deploy to push to GitHub.", "success");
+        onToast("Data imported! Push to GitHub to deploy.", "success");
       } catch { onToast("Failed to parse JSON file", "error"); }
     };
     input.click();
@@ -647,20 +551,22 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
   const dataSourceLabel: Record<string, string> = {
     default: "📦 Factory defaults",
     localStorage: "💾 Browser storage (local only)",
-    github: "☁️ GitHub repository",
-    "data.json": "📄 Deployed data.json",
+    github: "☁️ GitHub repository (individual files)",
+    "data.json": "📄 Deployed data/ folder",
   };
+
+  const changedCount = (changedFiles.site ? 1 : 0) + changedFiles.members.size;
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>GitHub Integration</h2>
         <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>
-          Manage your content directly via GitHub API. Changes auto-deploy on Vercel.
+          Each piece of content is stored as a separate JSON file in your GitHub repo.
         </p>
       </div>
 
-      {/* Current Status */}
+      {/* Status */}
       <div className="glass-card rounded-2xl p-6 space-y-4">
         <div className="flex items-center gap-4 mb-2">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -678,32 +584,77 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
           <SyncBadge status={syncStatus} message={syncMessage} isConfigured={isGitHubConfigured} />
         </div>
 
-        {/* Data source indicator */}
         <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background: "var(--bg-secondary)" }}>
           <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
             Data source: <strong>{dataSourceLabel[dataSource] || dataSource}</strong>
           </span>
         </div>
 
-        {lastDeployTime && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background: "var(--bg-secondary)" }}>
-            <Clock size={14} style={{ color: "var(--text-tertiary)" }} />
-            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Last deployed: <strong>{lastDeployTime}</strong></span>
+        {changedCount > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-500/20" style={{ background: "rgba(245,158,11,0.05)" }}>
+            <AlertCircle size={14} className="text-amber-500" />
+            <span className="text-xs font-medium text-amber-600">
+              {changedCount} file{changedCount > 1 ? "s" : ""} changed locally (not yet pushed to GitHub)
+            </span>
           </div>
         )}
 
-        {/* Action buttons */}
+        {lastDeployTime && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl" style={{ background: "var(--bg-secondary)" }}>
+            <Clock size={14} style={{ color: "var(--text-tertiary)" }} />
+            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Last pushed: <strong>{lastDeployTime}</strong></span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button onClick={handleDeploy} disabled={isDeploying || !isGitHubConfigured}
             className="py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
             style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #10B981, #059669)" : "linear-gradient(135deg, #9ca3af, #6b7280)" }}>
-            {isDeploying ? <><RefreshCw size={16} className="animate-spin" /> Pushing...</> : <><Rocket size={16} /> Push to GitHub</>}
+            {isDeploying ? <><RefreshCw size={16} className="animate-spin" /> Pushing All Files...</> : <><Rocket size={16} /> Push All Files to GitHub</>}
           </button>
           <button onClick={handlePull} disabled={isDeploying || !isGitHubConfigured}
             className="py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-300 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
             style={{ background: isGitHubConfigured ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "linear-gradient(135deg, #9ca3af, #6b7280)" }}>
-            {syncStatus === "syncing" ? <><RefreshCw size={16} className="animate-spin" /> Pulling...</> : <><Download size={16} /> Pull from GitHub</>}
+            {syncStatus === "syncing" ? <><RefreshCw size={16} className="animate-spin" /> Pulling...</> : <><Download size={16} /> Pull All Files from GitHub</>}
           </button>
+        </div>
+      </div>
+
+      {/* File Structure */}
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+          <FolderTree size={14} /> File Structure in GitHub
+        </h3>
+        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+          Each file can be edited directly on GitHub. Pushing a commit triggers Vercel auto-deploy.
+        </p>
+        <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--divider)" }}>
+          {fileStructure.map((file, i) => {
+            const isChanged = file.path === "public/data/site.json" ? changedFiles.site
+              : changedFiles.members.has(teamMembers.find((m) => file.path.includes(m.id))?.id || "");
+            return (
+              <div key={i} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 transition-colors"
+                style={{ borderColor: "var(--divider)", background: isChanged ? "rgba(245,158,11,0.05)" : "transparent" }}>
+                <FileJson size={14} style={{ color: isChanged ? "#F59E0B" : "var(--text-tertiary)" }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-mono font-medium truncate" style={{ color: "var(--text-primary)" }}>{file.path}</p>
+                  <p className="text-[10px] truncate" style={{ color: "var(--text-tertiary)" }}>{file.description}</p>
+                </div>
+                {isChanged && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 flex-shrink-0">modified</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="rounded-xl p-4 border border-blue-500/20" style={{ background: "rgba(99,102,241,0.05)" }}>
+          <p className="text-xs font-medium text-blue-600 flex items-start gap-2">
+            <FolderTree size={14} className="flex-shrink-0 mt-0.5" />
+            <span>
+              <strong>To edit content directly on GitHub:</strong> Navigate to the <code className="bg-blue-500/10 px-1 rounded text-[11px]">public/data/</code> folder in your repo, 
+              edit the JSON file, commit, and Vercel will auto-deploy. Each member has their own file, so team edits don&apos;t conflict.
+            </span>
+          </p>
         </div>
       </div>
 
@@ -714,10 +665,10 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
         </h3>
         <div className="space-y-3">
           {[
-            { step: "1", text: "Configure your GitHub repo and personal access token below" },
-            { step: "2", text: "Every Save in the admin panel auto-pushes data.json to your GitHub repo" },
-            { step: "3", text: "Vercel detects the commit and auto-redeploys your site (~30s)" },
-            { step: "4", text: "Your changes are live and persistent across all browsers and devices" },
+            { step: "1", text: "Content is split into individual JSON files: site.json + one file per team member" },
+            { step: "2", text: "Saving site settings pushes only site.json. Saving a member pushes only that member's file." },
+            { step: "3", text: "You can also edit these JSON files directly on GitHub — just commit and Vercel auto-deploys (~30s)" },
+            { step: "4", text: '"Push All" commits every file at once. "Pull" loads all files from your repo into the admin panel.' },
           ].map((item) => (
             <div key={item.step} className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
@@ -728,7 +679,7 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
         </div>
       </div>
 
-      {/* GitHub Configuration */}
+      {/* Config */}
       <div className="glass-card rounded-2xl p-6 space-y-5">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-[0.1em] flex items-center gap-2" style={{ color: "var(--text-primary)" }}><Github size={14} /> GitHub Configuration</h3>
@@ -746,14 +697,9 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
             <Input value={draft.repo} onChange={(v) => updateDraft("repo", v)} placeholder="e.g., aurora-website" />
           </FormGroup>
         </div>
-        <div className="grid md:grid-cols-2 gap-5">
-          <FormGroup label="Branch" hint="Default: main">
-            <Input value={draft.branch} onChange={(v) => updateDraft("branch", v)} placeholder="main" />
-          </FormGroup>
-          <FormGroup label="File Path" hint="Where data.json is saved">
-            <Input value={draft.filePath} onChange={(v) => updateDraft("filePath", v)} placeholder="public/data.json" />
-          </FormGroup>
-        </div>
+        <FormGroup label="Branch" hint="Default: main">
+          <Input value={draft.branch} onChange={(v) => updateDraft("branch", v)} placeholder="main" />
+        </FormGroup>
         <FormGroup label="Personal Access Token" hint="github.com/settings/tokens → Fine-grained → Contents: Read & Write">
           <div className="relative">
             <input type={showToken ? "text" : "password"} value={draft.token} onChange={(e) => updateDraft("token", e.target.value)} placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
@@ -767,7 +713,7 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
         <div className="rounded-xl p-4 border border-amber-500/20" style={{ background: "rgba(245, 158, 11, 0.05)" }}>
           <p className="text-xs font-medium text-amber-600 flex items-start gap-2">
             <Shield size={14} className="flex-shrink-0 mt-0.5" />
-            <span>Your token is stored only in your browser&apos;s localStorage and sent directly to GitHub&apos;s API. Use a fine-grained token with minimal permissions.</span>
+            <span>Your token is stored only in your browser&apos;s localStorage and sent directly to GitHub&apos;s API. Use a fine-grained token with minimal permissions (Contents: Read &amp; Write).</span>
           </p>
         </div>
       </div>
@@ -775,7 +721,7 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
       {/* Manual Backup */}
       <div className="glass-card rounded-2xl p-6 space-y-5">
         <h3 className="text-sm font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-primary)" }}>Manual Backup</h3>
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Export/import data as JSON for backup.</p>
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Export/import all data as a single JSON for backup purposes.</p>
         <div className="flex gap-3">
           <button onClick={handleExport} className="flex-1 py-3 rounded-xl text-sm font-semibold border transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--bg-tertiary)]"
             style={{ borderColor: "var(--divider)", color: "var(--text-primary)" }}><Download size={16} /> Export</button>
@@ -790,10 +736,7 @@ function DeployEditor({ onToast }: { onToast: (msg: string, type: "success" | "e
 /* ─── Main Admin Panel ─── */
 type Tab = "site" | "team" | "deploy";
 
-interface AdminPanelProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+interface AdminPanelProps { isOpen: boolean; onClose: () => void; }
 
 export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [authed, setAuthed] = useState(() => localStorage.getItem(AUTH_KEY) === "true");
@@ -801,9 +744,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const { syncStatus, syncMessage, isGitHubConfigured } = useData();
 
-  const showToast = useCallback((message: string, type: "success" | "error") => {
-    setToast({ message, type });
-  }, []);
+  const showToast = useCallback((message: string, type: "success" | "error") => { setToast({ message, type }); }, []);
 
   const logout = () => { localStorage.removeItem(AUTH_KEY); setAuthed(false); };
 
@@ -824,8 +765,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       {isOpen && (
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80]" style={{ background: "var(--overlay-bg)" }} onClick={onClose} />
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }}
+          <motion.div initial={{ opacity: 0, x: "100%" }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: "100%" }}
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="fixed inset-0 md:inset-y-0 md:left-auto md:w-[680px] lg:w-[780px] z-[90] flex flex-col"
             style={{ background: "var(--bg-primary)" }}>

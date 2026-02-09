@@ -1,0 +1,38 @@
+{
+  "id": "rica",
+  "name": "Rica Mea Hernandez",
+  "firstName": "Rica Mea",
+  "role": "Modelling",
+  "tagline": "Sculpting digital perfection",
+  "skills": ["3D Modelling", "Sculpting", "Texturing", "UV Mapping", "Hard Surface", "Organic Modelling"],
+  "accentColor": "#10B981",
+  "accentColorRGB": "16, 185, 129",
+  "email": "rica@aurorastudio.com",
+  "socials": [
+    { "platform": "ArtStation", "url": "#" },
+    { "platform": "Behance", "url": "#" },
+    { "platform": "Instagram", "url": "#" }
+  ],
+  "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
+  "works": [
+    {
+      "id": "r1",
+      "title": "Ancient Ruins",
+      "description": "Detailed environment modelling of a lost civilization temple complex",
+      "tools": ["ZBrush", "Substance Painter"],
+      "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=400&fit=crop",
+      "contentBlocks": [
+        { "id": "r1b1", "type": "hero-image", "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1400&h=700&fit=crop", "heading": "Ancient Ruins", "body": "3D Environment Design · Lost Temple Complex" },
+        { "id": "r1b2", "type": "text", "heading": "World Building", "body": "Inspired by the temple complexes of Angkor Wat and Borobudur.", "alignment": "center" },
+        { "id": "r1b3", "type": "image-grid-2", "images": [{ "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop", "caption": "Wireframe Overview" }, { "url": "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&h=400&fit=crop", "caption": "Textured Detail" }] },
+        { "id": "r1b4", "type": "image-grid-3", "images": [{ "url": "https://images.unsplash.com/photo-1569701813229-33284b643e3c?w=400&h=400&fit=crop", "caption": "Column Detail" }, { "url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop", "caption": "Material Study" }, { "url": "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=400&fit=crop", "caption": "Entrance Gate" }] },
+        { "id": "r1b5", "type": "image-full", "image": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&h=600&fit=crop", "caption": "Final panoramic render — The Inner Sanctum at dawn" }
+      ]
+    },
+    { "id": "r2", "title": "Cyber Samurai", "description": "High-poly character model blending feudal armor with cyberpunk aesthetics", "tools": ["ZBrush", "Maya"], "image": "https://images.unsplash.com/photo-1569701813229-33284b643e3c?w=600&h=400&fit=crop" },
+    { "id": "r3", "title": "Product Renders", "description": "Photorealistic product visualization for consumer electronics brand", "tools": ["Blender", "KeyShot"], "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop" },
+    { "id": "r4", "title": "Flora Collection", "description": "Botanical 3D model library with procedural materials and variations", "tools": ["Houdini", "Substance"], "image": "https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=600&h=400&fit=crop" },
+    { "id": "r5", "title": "Vehicle Concepts", "description": "Futuristic vehicle hard-surface models for an animated series pitch", "tools": ["Fusion 360", "Blender"], "image": "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&h=400&fit=crop" },
+    { "id": "r6", "title": "Miniature World", "description": "Diorama-style environment models for a mobile puzzle game", "tools": ["Maya", "Substance Painter"], "image": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=400&fit=crop" }
+  ]
+}
