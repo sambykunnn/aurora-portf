@@ -1,37 +1,17 @@
 {
   "id": "gian",
   "name": "Gian Carlo Sambayan",
-  "firstName": "Samby",
+  "firstName": "Gian Carlo",
   "role": "Graphic Design",
   "tagline": "Visual storyteller crafting brands that resonate",
   "email": "giancarlo@aurorastudio.com",
-  "avatar": "https://scontent.fmnl13-4.fna.fbcdn.net/v/t39.30808-6/486945431_1867598680670523_2851261492541826709_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeESy37IZIb2fE-Scq4rMDXPzHQgqrgnKIDMdCCquCcogAp64YBR54Ks7dHBYA6PqjBF7BUQwrpxt1c5u2JFunA7&_nc_ohc=fmo3tFnmR1oQ7kNvwHhjued&_nc_oc=AdnLhJLggr7r3hYEAE9P8IY9z9JS7FvS_mc_k2MjYr5A3qQbEX9SRbefYtDWVEFvDftEq4OeE5pu2gXg06LoCTEM&_nc_zt=23&_nc_ht=scontent.fmnl13-4.fna&_nc_gid=gbyqurH7Kp8QN1Q6FJ4nAw&oh=00_AftSqVPlBW8s8att_iRv4ww9svTu0zyssC6S7j-uyLp8vA&oe=698EF88F",
+  "avatar": "",
   "accentColor": "#6366F1",
   "accentColorRGB": "99, 102, 241",
-  "skills": [
-    "Brand Identity",
-    "Typography",
-    "Layout Design",
-    "Visual Systems",
-    "Print Design"
-  ],
+  "skills": ["Brand Identity", "Typography", "Layout Design", "Visual Systems", "Print Design"],
   "socials": [
-    {
-      "platform": "Behance",
-      "url": "https://www.behance.net/sambykun"
-    },
-    {
-      "platform": "Instagram",
-      "url": "https://www.instagram.com/sambykunn"
-    }
+    { "platform": "Behance", "url": "" },
+    { "platform": "Instagram", "url": "" }
   ],
-  "works": [
-    {
-      "id": "12jdzko",
-      "title": "MDL Philippines Season 4 ",
-      "description": "",
-      "tools": [],
-      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop"
-    }
-  ]
+  "works": []
 }

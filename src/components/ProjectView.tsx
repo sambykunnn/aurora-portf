@@ -9,6 +9,126 @@ interface ProjectViewProps {
   onBack: () => void;
 }
 
+/* ─── Video URL Parser ─── */
+
+function parseVideoUrl(url: string): { type: "youtube" | "vimeo" | "direct"; embedUrl: string } | null {
+  if (!url) return null;
+
+  // YouTube
+  const ytMatch = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  if (ytMatch) {
+    return { type: "youtube", embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0` };
+  }
+
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return { type: "vimeo", embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}` };
+  }
+
+  // Google Drive
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveMatch) {
+    return { type: "direct", embedUrl: `https://drive.google.com/file/d/${driveMatch[1]}/preview` };
+  }
+
+  // Direct video URL (.mp4, .webm, .mov, .ogg)
+  if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) {
+    return { type: "direct", embedUrl: url };
+  }
+
+  // Fallback: try as iframe embed
+  return { type: "direct", embedUrl: url };
+}
+
+function VideoEmbed({ url, caption, autoplay, loop }: { url: string; caption?: string; autoplay?: boolean; loop?: boolean }) {
+  const parsed = parseVideoUrl(url);
+  if (!parsed) return null;
+
+  if (parsed.type === "youtube" || parsed.type === "vimeo") {
+    let embedSrc = parsed.embedUrl;
+    if (parsed.type === "youtube") {
+      const params = new URLSearchParams();
+      params.set("rel", "0");
+      if (autoplay) params.set("autoplay", "1");
+      if (loop) params.set("loop", "1");
+      embedSrc = `https://www.youtube.com/embed/${url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)![1]}?${params.toString()}`;
+    }
+    if (parsed.type === "vimeo") {
+      const params = new URLSearchParams();
+      if (autoplay) params.set("autoplay", "1");
+      if (loop) params.set("loop", "1");
+      embedSrc = `${parsed.embedUrl}?${params.toString()}`;
+    }
+
+    return (
+      <div>
+        <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+          <iframe
+            src={embedSrc}
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={caption || "Video"}
+          />
+        </div>
+        {caption && (
+          <p className="text-xs md:text-sm mt-3 text-center font-medium" style={{ color: "var(--text-tertiary)" }}>
+            {caption}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Google Drive embed
+  if (url.includes("drive.google.com")) {
+    return (
+      <div>
+        <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+          <iframe
+            src={parsed.embedUrl}
+            className="absolute inset-0 w-full h-full"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            title={caption || "Video"}
+          />
+        </div>
+        {caption && (
+          <p className="text-xs md:text-sm mt-3 text-center font-medium" style={{ color: "var(--text-tertiary)" }}>
+            {caption}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Direct video file
+  return (
+    <div>
+      <video
+        src={parsed.embedUrl}
+        controls
+        autoPlay={autoplay}
+        loop={loop}
+        muted={autoplay}
+        playsInline
+        className="w-full h-auto"
+        preload="metadata"
+      >
+        Your browser does not support the video tag.
+      </video>
+      {caption && (
+        <p className="text-xs md:text-sm mt-3 text-center font-medium" style={{ color: "var(--text-tertiary)" }}>
+          {caption}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /* ─── Block Renderers (no rounded corners, full-scale images, no lightbox) ─── */
 
 function HeroImageBlock({ block }: { block: ContentBlock }) {
@@ -339,6 +459,74 @@ function GalleryBlock({ block, index }: { block: ContentBlock; index: number }) 
   );
 }
 
+/* ─── Video Blocks ─── */
+
+function VideoBlock({ block, index }: { block: ContentBlock; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="w-full py-2"
+    >
+      {block.heading && (
+        <h3
+          className="text-lg md:text-xl font-bold mb-4 px-4 md:px-0"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {block.heading}
+        </h3>
+      )}
+      {block.videoUrl && (
+        <VideoEmbed
+          url={block.videoUrl}
+          caption={block.caption}
+          autoplay={block.autoplay}
+          loop={block.loop}
+        />
+      )}
+      {block.body && (
+        <p
+          className="text-sm md:text-base mt-4 max-w-3xl mx-auto leading-relaxed px-4 md:px-0"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {block.body}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+function VideoGridBlock({ block, index }: { block: ContentBlock; index: number }) {
+  const videos = block.videos || [];
+  const cols = videos.length <= 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: index * 0.05 }}
+      className="w-full py-2"
+    >
+      {block.heading && (
+        <h3
+          className="text-lg md:text-xl font-bold mb-4 px-4 md:px-0"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {block.heading}
+        </h3>
+      )}
+      <div className={`grid grid-cols-1 ${cols} gap-1`}>
+        {videos.map((vid, i) => (
+          <div key={i}>
+            <VideoEmbed url={vid.url} caption={vid.caption} />
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 /* ─── Block Renderer Switch ─── */
 
 function BlockRenderer({
@@ -371,6 +559,10 @@ function BlockRenderer({
       return <SpacerBlock block={block} />;
     case "gallery":
       return <GalleryBlock block={block} index={index} />;
+    case "video":
+      return <VideoBlock block={block} index={index} />;
+    case "video-grid":
+      return <VideoGridBlock block={block} index={index} />;
     default:
       return null;
   }

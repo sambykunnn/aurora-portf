@@ -5,33 +5,13 @@
   "role": "3D Animation",
   "tagline": "Bringing imagination to life in three dimensions",
   "email": "sergs@aurorastudio.com",
-  "avatar": "https://scontent.fmnl13-4.fna.fbcdn.net/v/t39.30808-1/452258473_1182225286350890_7377608706933956147_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=107&ccb=1-7&_nc_sid=1d2534&_nc_eui2=AeHiZ9vCKZS6KWSHS4RWahVKYzNkcjt6l0JjM2RyO3qXQms3SJAfe94pdJTs7Xx0fAGdsBO6Z1N_WXKeOxQxiH-1&_nc_ohc=Iu0vTNiLYtEQ7kNvwGYUwMo&_nc_oc=Adl0hW-uQmPanTlwvHYsxIdSn7jPFAoyFxCUJVB6uPVXdBz7kDQ40WxbOeg9two4AZcqjbPKGrKScGxsz1VqqaQ1&_nc_zt=24&_nc_ht=scontent.fmnl13-4.fna&_nc_gid=QIJpTXgscIJ099V5v6q9Rw&oh=00_AfvA5uC2INr49XqnB9xkvuisL5X4DCU42O1d313ct35NrA&oe=698F03DF",
+  "avatar": "",
   "accentColor": "#EC4899",
   "accentColorRGB": "236, 72, 153",
-  "skills": [
-    "3D Modeling",
-    "Character Animation",
-    "Motion Graphics",
-    "Rendering",
-    "Rigging"
-  ],
+  "skills": ["3D Modeling", "Character Animation", "Motion Graphics", "Rendering", "Rigging"],
   "socials": [
-    {
-      "platform": "Behance",
-      "url": ""
-    },
-    {
-      "platform": "Instagram",
-      "url": ""
-    }
+    { "platform": "Behance", "url": "" },
+    { "platform": "Instagram", "url": "" }
   ],
-  "works": [
-    {
-      "id": "evpyuh7",
-      "title": "3D Animation",
-      "description": "",
-      "tools": [],
-      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop"
-    }
-  ]
+  "works": []
 }

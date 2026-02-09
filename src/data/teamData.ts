@@ -8,7 +8,9 @@ export type BlockType =
   | 'image-text'
   | 'spacer'
   | 'quote'
-  | 'gallery';
+  | 'gallery'
+  | 'video'
+  | 'video-grid';
 
 export interface ContentBlock {
   id: string;
@@ -23,6 +25,10 @@ export interface ContentBlock {
   quote?: string;
   author?: string;
   size?: 'sm' | 'md' | 'lg';
+  videoUrl?: string;
+  videos?: { url: string; caption?: string }[];
+  autoplay?: boolean;
+  loop?: boolean;
 }
 
 export interface WorkItem {

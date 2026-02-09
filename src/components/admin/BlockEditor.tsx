@@ -4,6 +4,7 @@ import {
   Plus, Trash2, ChevronDown,
   ArrowUp, ArrowDown, Type, Image, Columns2, Columns3,
   Quote, Minus, LayoutTemplate, GalleryHorizontal, X,
+  Play, Grid2x2,
 } from "lucide-react";
 import type { ContentBlock, BlockType } from "@/data/teamData";
 
@@ -23,6 +24,8 @@ const BLOCK_TYPES: { type: BlockType; label: string; icon: typeof Type; descript
   { type: "quote", label: "Quote", icon: Quote, description: "Pull quote with author" },
   { type: "spacer", label: "Spacer", icon: Minus, description: "Visual spacer / divider" },
   { type: "gallery", label: "Photo Gallery", icon: GalleryHorizontal, description: "Masonry photo gallery" },
+  { type: "video", label: "Video", icon: Play, description: "YouTube, Vimeo, or direct video embed" },
+  { type: "video-grid", label: "Video Grid", icon: Grid2x2, description: "Multiple videos in a grid layout" },
 ];
 
 function createDefaultBlock(type: BlockType): ContentBlock {
@@ -48,6 +51,10 @@ function createDefaultBlock(type: BlockType): ContentBlock {
       return { ...base, size: "md" };
     case "gallery":
       return { ...base, images: [{ url: "", caption: "" }] };
+    case "video":
+      return { ...base, videoUrl: "", heading: "", body: "", caption: "", autoplay: false, loop: false };
+    case "video-grid":
+      return { ...base, heading: "", videos: [{ url: "", caption: "" }, { url: "", caption: "" }] };
     default:
       return base;
   }
@@ -326,6 +333,84 @@ function GalleryEditor({ block, onChange }: { block: ContentBlock; onChange: (b:
   );
 }
 
+/* ─── Video Editors ─── */
+
+function VideoEditor({ block, onChange }: { block: ContentBlock; onChange: (b: ContentBlock) => void }) {
+  return (
+    <div className="space-y-3">
+      <MiniInput value={block.videoUrl || ""} onChange={(v) => onChange({ ...block, videoUrl: v })} placeholder="YouTube, Vimeo, or direct video URL..." label="Video URL" />
+      <div className="rounded-lg p-2.5 text-[10px] space-y-1" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
+        <p className="font-bold uppercase tracking-wider">Supported formats:</p>
+        <p>• YouTube: youtube.com/watch?v=... or youtu.be/...</p>
+        <p>• Vimeo: vimeo.com/123456789</p>
+        <p>• Google Drive: drive.google.com/file/d/.../view</p>
+        <p>• Direct: .mp4, .webm, .mov files</p>
+      </div>
+      <MiniInput value={block.heading || ""} onChange={(v) => onChange({ ...block, heading: v })} placeholder="Video title (optional)..." label="Title" />
+      <MiniTextArea value={block.body || ""} onChange={(v) => onChange({ ...block, body: v })} placeholder="Description (optional)..." label="Description" rows={2} />
+      <MiniInput value={block.caption || ""} onChange={(v) => onChange({ ...block, caption: v })} placeholder="Caption below video..." label="Caption" />
+      <div className="flex gap-4">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={block.autoplay || false} onChange={(e) => onChange({ ...block, autoplay: e.target.checked })}
+            className="w-3.5 h-3.5 rounded accent-indigo-500" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>Autoplay</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={block.loop || false} onChange={(e) => onChange({ ...block, loop: e.target.checked })}
+            className="w-3.5 h-3.5 rounded accent-indigo-500" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>Loop</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function VideoGridEditor({ block, onChange }: { block: ContentBlock; onChange: (b: ContentBlock) => void }) {
+  const videos = block.videos || [];
+
+  const updateVideo = (index: number, vid: { url: string; caption?: string }) => {
+    const newVids = [...videos]; newVids[index] = vid; onChange({ ...block, videos: newVids });
+  };
+
+  const addVideo = () => {
+    onChange({ ...block, videos: [...videos, { url: "", caption: "" }] });
+  };
+
+  const removeVideo = (index: number) => {
+    onChange({ ...block, videos: videos.filter((_, i) => i !== index) });
+  };
+
+  return (
+    <div className="space-y-3">
+      <MiniInput value={block.heading || ""} onChange={(v) => onChange({ ...block, heading: v })} placeholder="Grid title (optional)..." label="Title" />
+      <div className="flex items-center justify-between">
+        <label className="block text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: "var(--text-tertiary)" }}>
+          Videos ({videos.length})
+        </label>
+        <button onClick={addVideo} className="text-[10px] font-semibold text-indigo-500 hover:text-indigo-600 flex items-center gap-0.5">
+          <Plus size={10} /> Add Video
+        </button>
+      </div>
+      {videos.map((vid, i) => (
+        <div key={i} className="rounded-lg border p-3 space-y-2" style={{ borderColor: "var(--divider)" }}>
+          <div className="flex gap-2 items-start">
+            <div className="flex-1 space-y-2">
+              <MiniInput value={vid.url} onChange={(v) => updateVideo(i, { ...vid, url: v })} placeholder="YouTube, Vimeo, or direct URL..." label={`Video ${i + 1} URL`} />
+              <MiniInput value={vid.caption || ""} onChange={(v) => updateVideo(i, { ...vid, caption: v })} placeholder="Caption (optional)" label="Caption" />
+            </div>
+            {videos.length > 1 && (
+              <button onClick={() => removeVideo(i)} className="p-1 mt-4 text-red-500 hover:text-red-600 transition-colors"><X size={12} /></button>
+            )}
+          </div>
+        </div>
+      ))}
+      <div className="rounded-lg p-2.5 text-[10px]" style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}>
+        <p><strong>Tip:</strong> 2 videos = 2-column, 3+ videos = responsive 2–3 column grid. Supports YouTube, Vimeo, Google Drive, and direct .mp4 URLs.</p>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Block Editor Item ─── */
 
 function BlockEditorItem({ block, index, total, expanded, onToggle, onChange, onDelete, onMoveUp, onMoveDown, accentColor }: {
@@ -354,6 +439,8 @@ function BlockEditorItem({ block, index, total, expanded, onToggle, onChange, on
       case "quote": return <QuoteEditor block={block} onChange={onChange} />;
       case "spacer": return <SpacerEditor block={block} onChange={onChange} />;
       case "gallery": return <GalleryEditor block={block} onChange={onChange} />;
+      case "video": return <VideoEditor block={block} onChange={onChange} />;
+      case "video-grid": return <VideoGridEditor block={block} onChange={onChange} />;
       default: return null;
     }
   };
