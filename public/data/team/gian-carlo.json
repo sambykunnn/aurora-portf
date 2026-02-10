@@ -136,72 +136,411 @@
       ]
     },
     {
-      "id": "szj8g0m",
-      "title": "Charlotte Folk Series - BINI",
-      "description": "CHARLOTTE FOLK IS A POPULAR STREETWEAR BRAND IN THE PHILIPPINES. ESTABLISHED IN 2018 BY JAN CHARLOTTE VENZON. KNOWN FOR ITS MINIMALIST AND LAID-BACK DESIGNS, THE BRAND HAS GAINED ATTENTION FOR ITS HIGH-QUALITY GRAPHIC TEES. SWEATSHIRTS, AND OTHER APPAREL. CHARLOTTE FOLK IS PARTICULARLY BELOVED URBAN CREATIVES AND INFLUENCERS IN THE COUNTRY. THE BRAND FOCUSES ON CREATING STYLISH AND COMFORTABLE PIECES THAT REFLECT THE LIFESTYLE OF THE \"URBAN WHO ARE PASSIONATE ABOUT FASHION AND SELF-EXPRESSION.",
-      "tools": [
-        "Adobe Photoshop",
-        "Topaz Upscaler"
-      ],
-      "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/9a2b1b207404707.66deff4ccf22b.png",
+      "id": "o1u00g4",
+      "title": "MDL Philippines Season 4 ",
+      "description": "MLBB Development League PH is a second tier professional league in the Philippines.",
+      "tools": [],
+      "image": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/2b6896214536989.67692749a8f8e.jpg",
       "contentBlocks": [
         {
-          "id": "blk_w0c38m3",
+          "id": "blk_qtmrihx",
           "type": "hero-image",
-          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/2800_webp/9a2b1b207404707.66deff4ccf22b.png",
-          "heading": "Charlotte Folk Series - BINI",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/2b6896214536989.67692749a8f8e.jpg",
+          "heading": "",
           "body": ""
         },
         {
-          "id": "blk_06ranf0",
+          "id": "blk_c3z3q0f",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/dac5f6214536989.67694c1f6cb2b.jpg",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_94t6rbk",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/505568214536989.67683e4a26925.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_wvxekw2",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/a578a3214536989.67683e3e57df0.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/f61d6a214536989.67683e3e56935.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/da1ed4214536989.67683e3e59f20.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_0y6xr4p",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/2e788d214536989.67683e3e58fd5.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/a837dc214536989.67683e3e5977c.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/daa3ef214536989.67683e3e56df0.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_5ss4e3k",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/9a041c214536989.67683e4a263db.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_4ys64p7",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/29413e214536989.67683e407aabd.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/48027e214536989.67683e4079f5d.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/ceddda214536989.67683e407a5fc.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_qau4o1g",
+          "type": "image-full",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/a37e3d214536989.67684a894612e.png",
+          "caption": ""
+        },
+        {
+          "id": "blk_yzr2g5d",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/868453214536989.67683e4239ae3.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/8cf882214536989.67683e423a624.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/35bf40214536989.67683e423a223.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_6p7pz59",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/3a6bc4214536989.676842d969829.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_5i4fl8k",
+          "type": "image-grid-6",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/6f9ad7214536989.67683e44a900b.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/1f0517214536989.67683e44a6a91.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/4acedd214536989.67683e44a79f8.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/db8d03214536989.67683e44a801e.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/4fc381214536989.67683e44a8b02.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/287985214536989.67683e44a74d1.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_d8vxwvv",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/bc9c74214536989.676842d968695.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_zpuprgd",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/804440214536989.67683e4873940.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/22c31b214536989.67683e4873436.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/5acbc6214536989.67683e4872efe.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_xditu49",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/84ef79214536989.676842d968f17.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_by316rj",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/cfdbbf214536989.676842d89c745.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/a3d8fb214536989.676842d89d0e7.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/987d5d214536989.676842d89cc58.png",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_kj31dhn",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/c94d01214536989.67684a8946f11.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_dcmwkvs",
+          "type": "image-grid-6",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/080c39214536989.676847886ea4d.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/8d0d44214536989.676847886fe5e.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/2b5570214536989.676847886f2be.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/8057ac214536989.676847886dd59.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/2a773a214536989.67684788704ac.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/e34c43214536989.6768478870e09.png",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_3yn9llc",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/8da5f6214536989.67698dfe7b024.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_0khmpgo",
+          "type": "image-grid-3",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/18b78d214536989.6768478a02041.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/191c06214536989.6768478a01842.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/97d36e214536989.6768478a0252e.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_coptwwj",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/4a2647214536989.67684a8943f1e.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_xsagctn",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/30cbbe214536989.6768478c3412a.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/12b0c1214536989.6768478c30d6a.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_qz52ym7",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/0ff64e214536989.67684a8946771.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_q2s7d3i",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/bd1dc0214536989.67684a8804417.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/cf1a83214536989.67684a8804ba4.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_2dl3h1d",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/2bd6c8214536989.67683e4a25e6d.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_7p5j3k3",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/8cbe1e214536989.67691f54d0170.png",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/d2c5da214536989.6769596f921ed.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_mdrh4g2",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/272001214536989.67698dfe7c8df.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_pb3yop9",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/fbfb49214536989.67691f503d994.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/5e3897214536989.67691f503ddaa.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_x2su9db",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/736b9f214536989.67698dfe7e3f7.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_l6nuqbv",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/4e8ea9214536989.67691f50e1ec7.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/70f9c0214536989.67691f50e22e8.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_hn42jrp",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/125792214536989.67698dfe7eb5d.png",
+          "heading": "",
+          "body": ""
+        },
+        {
+          "id": "blk_lw37tta",
+          "type": "image-grid-2",
+          "images": [
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/e46e04214536989.67691f5b58cfd.jpg",
+              "caption": ""
+            },
+            {
+              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/3073a7214536989.67691f5b54af0.jpg",
+              "caption": ""
+            }
+          ]
+        },
+        {
+          "id": "blk_999y9x4",
+          "type": "spacer",
+          "size": "md"
+        },
+        {
+          "id": "blk_ey5es5h",
           "type": "text",
-          "heading": "About this project",
-          "body": "THE CHARLOTTE FOLK PH X BINI POSTER SERIES IS A CREATIVE COLLECTION FEATURING THE GROUP BINI AND THEIR POPULAR SHIPS, INCLUDING HAMBEBE , MIKHAIAH. JHOCEY, AND MACOLET. THIS SERIES ALIGNS WITH THE UPCOMING CHARLOTTE FOLK PHS REFINED DROP 02 ON SEPTEMBER 11, AVAILABLE AT CHARLOTTEFOLK.CO. EACH POSTER BLENDS ELEMENTS FROM BINIS DYNAMIC PRESENCE WITH THE DISTINCT AESTHETIC OF CHARLOTTE FOLK PH.",
+          "heading": "",
+          "body": "CREDITS\n\nKey Visuals: Mineski Global\n\nETHRL STUDIOS\n\nCreative Direction: Lawrence Apalla, Ivern Buala\n\nCreatives: Joshua Matriano, Gian Sambayan, \nAllyson Valdez, Adrianne Blu Sanchez",
           "alignment": "center"
         },
         {
-          "id": "blk_k3j0ik8",
-          "type": "spacer",
-          "size": "md"
-        },
-        {
-          "id": "blk_0xss3xv",
-          "type": "image-grid-2",
-          "images": [
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/76df10207404707.66dd2d52ebdc0.png",
-              "caption": "Hambebe"
-            },
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/228b93207404707.66dd2d52ec728.png",
-              "caption": "MikhAiah"
-            }
-          ]
-        },
-        {
-          "id": "blk_v73o03w",
-          "type": "image-grid-2",
-          "images": [
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/d69927207404707.66dd2e3c7a600.png",
-              "caption": "JhoCey"
-            },
-            {
-              "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/ca5e27207404707.66ddba00d14ee.png",
-              "caption": "MaColet"
-            }
-          ]
-        },
-        {
-          "id": "blk_jp8cyss",
-          "type": "spacer",
-          "size": "md"
-        },
-        {
-          "id": "blk_aurzjb0",
-          "type": "quote",
-          "quote": "Thank you for viewing!",
-          "author": ""
+          "id": "blk_bmh4qbf",
+          "type": "hero-image",
+          "image": "https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/609e09214536989.67694c1f6c394.jpg",
+          "heading": "",
+          "body": ""
         }
       ]
     }
